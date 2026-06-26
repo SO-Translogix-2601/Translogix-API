@@ -452,3 +452,72 @@ db.incidencias.createIndex({ despacho_id: 1 });
 db.notificaciones.createIndex({ usuario_id: 1, leida: 1 });
 
 print("Translogix TMS — 14 colecciones creadas con datos de ejemplo.");
+
+
+// =========================================================================
+// MÓDULO DE RED SOCIAL CORPORATIVA (FEED, MULTIMEDIA Y COMENTARIOS)
+// =========================================================================
+
+db.publicaciones_feed.drop();
+db.publicaciones_feed.insertMany([
+  {
+    _id: oid("feeeed000000000000000001"), 
+    autor_id: oid(ID.CON_LUIS), // Luis Quispe (Conductor)
+    referencia_despacho: oid(ID.DSP_001),
+    tipo_publicacion: "incidencia_multimedia",
+    contenido: "Acabo de pasar por la Av. Tomás Valle. El tráfico está completamente detenido por un choque. Adjunto video de la situación.",
+    multimedia: [
+      { tipo: "video", url: "https://translogix.blob.core.windows.net/media/video_trafico_001.mp4", size_mb: 14.5 }
+    ],
+    reacciones: [
+      { emoji: "⚠️", cantidad: 3 },
+      { emoji: "👀", cantidad: 1 },
+      { emoji: "🤬", cantidad: 2 }
+    ],
+    estado: "publicado",
+    createdAt: new Date("2026-06-12T08:42:00Z")
+  },
+  {
+     _id: oid("feeeed000000000000000002"),
+    autor_id: oid(ID.CON_MARIA), // María Huanca (Conductora)
+    referencia_despacho: oid(ID.DSP_002),
+    tipo_publicacion: "conformidad_entrega",
+    contenido: "Carga entregada exitosamente en Farmacias del Norte. El cliente verificó el lote. Todo conforme.",
+    multimedia: [
+      { tipo: "imagen", url: "https://translogix.blob.core.windows.net/media/foto_guia_002.jpg", size_mb: 2.1 },
+      { tipo: "audio", url: "https://translogix.blob.core.windows.net/media/nota_voz_cliente.ogg", size_mb: 1.2 }
+    ],
+    reacciones: [
+      { emoji: "👍", cantidad: 4 },
+      { emoji: "🎉", cantidad: 2 },
+      { emoji: "💪", cantidad: 1 }
+    ],
+    estado: "publicado",
+    createdAt: new Date("2026-06-12T10:35:00Z")
+  }
+]);
+
+db.comentarios.drop();
+db.comentarios.insertMany([
+  {
+    _id: oid("c00000000000000000000001"), // Corregido: c000 es hexadecimal válido
+    publicacion_id: oid("feeeed000000000000000001"),
+    autor_id: oid(ID.USR_ANA), // Ana Torres (Operadora responde al conductor)
+    texto: "Copiado Luis. Estamos notificando al cliente sobre el retraso y alertando a los demás conductores para que eviten la zona.",
+    createdAt: new Date("2026-06-12T08:45:00Z")
+  },
+  {
+    _id: oid("c00000000000000000000002"),
+    publicacion_id: oid("feeeed000000000000000001"),
+    autor_id: oid(ID.CON_MARIA), // Otra conductora comenta
+    texto: "Gracias por el aviso Luis, justo iba a tomar esa ruta. Me desvío por la Panamericana.",
+    createdAt: new Date("2026-06-12T08:47:00Z")
+  }
+]);
+
+// Índices para optimizar las consultas del Feed estilo Red Social
+db.publicaciones_feed.createIndex({ autor_id: 1, createdAt: -1 });
+db.publicaciones_feed.createIndex({ referencia_despacho: 1 });
+db.comentarios.createIndex({ publicacion_id: 1, createdAt: 1 });
+
+print("Módulo de Red Social Interna: Feed, comentarios y multimedia inicializados.");
