@@ -345,3 +345,33 @@ VITE_API_URL=http://localhost:3000/api
 | Pedidos | Listar, crear, editar y eliminar |
 | Despachos | Listar, crear, editar y eliminar |
 | Conductores | Listar, crear, editar y eliminar |
+---
+
+## Login real y suscripciones
+
+La rama `capa-presentacion` incluye autenticacion real con **JWT** y passwords hasheadas con **bcryptjs**. Al iniciar el backend se ejecuta un bootstrap de datos demo que corrige los hashes falsos del seed inicial y crea suscripciones activas.
+
+Credenciales demo:
+
+| Usuario | Email | Password |
+|---|---|---|
+| Administrador | `carlosmen@gmail.com` | `Translogix2026!` |
+| Operadora | `atorres@translogix.pe` | `Translogix2026!` |
+| Conductor | `lquispe@translogix.pe` | `Translogix2026!` |
+
+Endpoints de autenticacion:
+
+| Metodo | Endpoint | Uso |
+|---|---|---|
+| POST | `/api/auth/login` | Iniciar sesion y obtener token JWT |
+| GET | `/api/auth/me` | Consultar usuario autenticado |
+| POST | `/api/auth/suscripcion` | Elegir plan `plus` o `premium` |
+
+Planes disponibles:
+
+| Plan | Caracteristicas |
+|---|---|
+| Plus | CRUD logistico, dashboard operativo, notificaciones internas |
+| Premium | Todo Plus, reportes avanzados y feed corporativo |
+
+La capa de presentacion ahora consume todos los recursos del backend, incluido `/api/suscripciones`.

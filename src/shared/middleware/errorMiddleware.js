@@ -1,10 +1,10 @@
-﻿export function notFound(req, res, next) {
+export function notFound(req, res, next) {
   res.status(404);
   next(new Error(`Ruta no encontrada: ${req.originalUrl}`));
 }
 
 export function errorHandler(err, req, res, next) {
-  const statusCode = res.statusCode && res.statusCode !== 200 ? res.statusCode : 500;
+  const statusCode = err.statusCode || (res.statusCode && res.statusCode !== 200 ? res.statusCode : 500);
 
   if (err.name === "CastError") {
     return res.status(400).json({ message: "ID invalido", detail: err.message });

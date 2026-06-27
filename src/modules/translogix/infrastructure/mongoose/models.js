@@ -1,4 +1,4 @@
-﻿import mongoose from "mongoose";
+import mongoose from "mongoose";
 
 const { Schema, model } = mongoose;
 const objectId = { type: Schema.Types.ObjectId };
@@ -300,6 +300,22 @@ export const Comentario = model(
   "comentarios"
 );
 
+
+export const Suscripcion = model(
+  "Suscripcion",
+  new Schema(
+    {
+      usuario_id: { ...objectId, ref: "Usuario", required: true },
+      plan: { type: String, enum: ["plus", "premium"], required: true },
+      estado: { type: String, enum: ["activa", "cancelada"], default: "activa" },
+      fecha_inicio: { type: Date, default: Date.now },
+      fecha_fin: Date,
+      caracteristicas: [String],
+    },
+    timestamps
+  ),
+  "suscripciones"
+);
 export const modelsByRoute = {
   roles: Role,
   usuarios: Usuario,
@@ -317,4 +333,5 @@ export const modelsByRoute = {
   notificaciones: Notificacion,
   publicaciones_feed: PublicacionFeed,
   comentarios: Comentario,
+  suscripciones: Suscripcion,
 };

@@ -1,10 +1,11 @@
-﻿import express from "express";
+import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger.js";
 import { resourceNames } from "./modules/translogix/domain/resourceCatalog.js";
 import { createTranslogixRouter } from "./modules/translogix/interfaces/http/translogixRoutes.js";
+import { authRoutes } from "./modules/auth/interfaces/http/authRoutes.js";
 import { errorHandler, notFound } from "./shared/middleware/errorMiddleware.js";
 
 export const app = express();
@@ -28,6 +29,7 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+app.use("/api/auth", authRoutes());
 app.use("/api", createTranslogixRouter());
 
 app.use(notFound);

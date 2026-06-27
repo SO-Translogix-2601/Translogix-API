@@ -1,4 +1,4 @@
-﻿export const resourceCatalog = [
+export const resourceCatalog = [
   { name: "roles", label: "Roles" },
   { name: "usuarios", label: "Usuarios" },
   { name: "conductores", label: "Conductores" },
@@ -15,6 +15,7 @@
   { name: "notificaciones", label: "Notificaciones" },
   { name: "publicaciones_feed", label: "Publicaciones feed" },
   { name: "comentarios", label: "Comentarios" },
+  { name: "suscripciones", label: "Suscripciones" },
 ];
 
 export const resourceNames = resourceCatalog.map((resource) => resource.name);
