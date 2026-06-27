@@ -1,4 +1,4 @@
-﻿# Translogix Backend CRUD
+# Translogix Backend CRUD
 
 Backend REST para el sistema **Translogix TMS**, desarrollado con **Node.js + Express.js + Mongoose** y conectado a la base de datos MongoDB `translogix_db`.
 
@@ -289,4 +289,59 @@ src/
 ## Resumen
 
 Este backend se desarrollo con Express.js porque el proyecto necesita una API REST CRUD clara, facil de probar y conectada a MongoDB. Express permite trabajar de forma mas ordenada que usando solo Node.js puro, especialmente cuando hay muchas colecciones y endpoints.
+---
 
+## Capa de presentacion
+
+La rama `capa-presentacion` agrega un frontend construido con **React + Vite**. Esta capa consume la API REST del backend Express y permite gestionar visualmente los modulos principales de Translogix.
+
+| Capa | Implementacion | Responsabilidad |
+|---|---|---|
+| Presentacion visual | `frontend/` con React + Vite | Mostrar tablas, formularios y acciones CRUD |
+| Presentacion HTTP | `src/modules/translogix/interfaces/http` | Recibir requests y responder JSON |
+| Aplicacion | `src/modules/translogix/application` | Ejecutar casos de uso CRUD |
+| Datos | `src/modules/translogix/infrastructure` | Acceder a MongoDB con Mongoose |
+
+### Ejecutar frontend
+
+Primero levantar el backend:
+
+```bash
+npm run dev
+```
+
+Luego abrir otra terminal y ejecutar la capa de presentacion:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+La interfaz queda disponible en:
+
+```text
+http://localhost:5173
+```
+
+Por defecto consume la API en:
+
+```text
+http://localhost:3000/api
+```
+
+Si se necesita cambiar la URL de la API, crear `frontend/.env` con:
+
+```text
+VITE_API_URL=http://localhost:3000/api
+```
+
+### Modulos disponibles en la interfaz
+
+| Modulo | Operaciones |
+|---|---|
+| Clientes | Listar, crear, editar y eliminar |
+| Vehiculos | Listar, crear, editar y eliminar |
+| Pedidos | Listar, crear, editar y eliminar |
+| Despachos | Listar, crear, editar y eliminar |
+| Conductores | Listar, crear, editar y eliminar |

@@ -1,0 +1,435 @@
+﻿:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #17202a;
+  background: #f4f6f8;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: #17324d;
+  color: #f8fafc;
+  padding: 24px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brandMark {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #2fbf71;
+  color: #0f2418;
+}
+
+.brand strong,
+.brand span {
+  display: block;
+}
+
+.brand strong {
+  font-size: 18px;
+}
+
+.brand span {
+  color: #cbd5e1;
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+.moduleNav {
+  display: grid;
+  gap: 8px;
+}
+
+.moduleNav button {
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #dbe7f3;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  text-align: left;
+}
+
+.moduleNav button:hover,
+.moduleNav button.active {
+  background: #244967;
+  color: #ffffff;
+}
+
+.content {
+  min-width: 0;
+  padding: 26px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: #667085;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 6px;
+  font-size: 30px;
+}
+
+h2 {
+  margin-bottom: 4px;
+  font-size: 18px;
+}
+
+.topbar p,
+.panelHeader span {
+  color: #667085;
+}
+
+.statusPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  background: #ffffff;
+  white-space: nowrap;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 18px;
+  align-items: start;
+}
+
+.listPanel,
+.formPanel {
+  background: #ffffff;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.formPanel {
+  padding: 18px;
+}
+
+.panelHeader {
+  min-height: 70px;
+  padding: 16px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.panelHeader.compact {
+  padding: 0 0 16px;
+  border-bottom: 0;
+}
+
+.actions,
+.formActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.searchBox {
+  width: 230px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  padding: 0 10px;
+  background: #ffffff;
+}
+
+.searchBox input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+}
+
+.iconButton,
+.dangerButton,
+.primaryButton,
+.secondaryButton {
+  min-height: 40px;
+  border-radius: 8px;
+  border: 1px solid #d0d7de;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 12px;
+  background: #ffffff;
+  color: #17202a;
+}
+
+.iconButton,
+.dangerButton {
+  width: 40px;
+  padding: 0;
+}
+
+.primaryButton {
+  border-color: #2fbf71;
+  background: #2fbf71;
+  color: #0f2418;
+  font-weight: 700;
+}
+
+.primaryButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.secondaryButton:hover,
+.iconButton:hover {
+  background: #f4f6f8;
+}
+
+.dangerButton {
+  color: #b42318;
+}
+
+.dangerButton:hover {
+  border-color: #fda29b;
+  background: #fff1f0;
+}
+
+.notice {
+  margin: 14px 18px 0;
+  min-height: 42px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+}
+
+.notice.success {
+  background: #eafaf1;
+  color: #166534;
+}
+
+.notice.error {
+  background: #fff1f0;
+  color: #b42318;
+}
+
+.tableWrap {
+  overflow: auto;
+  max-height: calc(100vh - 190px);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+th,
+td {
+  text-align: left;
+  border-bottom: 1px solid #edf0f2;
+  padding: 12px 14px;
+  font-size: 14px;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f8fafc;
+  color: #475467;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.selectedRow {
+  background: #edf7ff;
+}
+
+.tableActions {
+  width: 102px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.tableActions button {
+  margin-left: 6px;
+}
+
+.emptyState {
+  text-align: center;
+  color: #667085;
+  height: 120px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 7px;
+}
+
+.field.wide {
+  grid-column: 1 / -1;
+}
+
+.field span {
+  color: #475467;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #17202a;
+  padding: 10px 11px;
+  outline: 0;
+}
+
+.field input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 112px;
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 13px;
+}
+
+.formActions {
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1180px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .formPanel {
+    order: -1;
+  }
+}
+
+@media (max-width: 780px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+    padding: 16px;
+  }
+
+  .moduleNav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .content {
+    padding: 16px;
+  }
+
+  .topbar,
+  .panelHeader,
+  .actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .statusPill,
+  .searchBox {
+    width: 100%;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
