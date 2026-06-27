@@ -1,9 +1,8 @@
-version: "3.9"
-
-services:
-  # ── Base de datos MongoDB ───────────────────────────────────
+﻿services:
   mongodb:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.mongo
     container_name: translogix_db
     restart: unless-stopped
     environment:
@@ -23,8 +22,25 @@ services:
       retries: 5
       start_period: 20s
 
-  # Accede en: http://localhost:8081
-  # Usuario: admin  |  Contraseña: admin123
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: translogix_api
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      MONGODB_URI: mongodb://admin:translogix2026@mongodb:27017/translogix_db?authSource=admin
+      JWT_SECRET: translogix_demo_secret_2026
+      JWT_EXPIRES_IN: 8h
+    ports:
+      - "3000:3000"
+    networks:
+      - translogix_net
+
   mongo-express:
     image: mongo-express:1.0.2
     container_name: translogix_mongo_express

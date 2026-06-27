@@ -427,3 +427,70 @@ Correccion de IAM por rol:
 | Administrador | Gestion completa del TMS, IAM, reportes y configuracion |
 | Operador | Clientes, flota, rutas, pedidos, despachos e incidencias |
 | Conductor | Despachos, GPS, incidencias, notificaciones y comunicacion interna |
+---
+
+## Docker para capa de datos y aplicacion
+
+El proyecto dockeriza de momento dos capas:
+
+| Capa | Servicio Docker | Puerto |
+|---|---|---|
+| Datos | `mongodb` | `27017` |
+| Aplicacion | `api` | `3000` |
+| Administracion BD | `mongo-express` | `8081` |
+
+La capa de presentacion React se mantiene fuera de Docker por ahora y consume la API en `http://localhost:3000/api`.
+
+### Levantar datos + aplicacion
+
+```bash
+docker compose up --build -d
+```
+
+Servicios disponibles:
+
+```text
+API:           http://localhost:3000
+Swagger:       http://localhost:3000/api-docs
+MongoDB:       localhost:27017
+Mongo Express: http://localhost:8081
+```
+
+Credenciales Mongo Express:
+
+```text
+usuario: admin
+password: admin123
+```
+
+### Apagar servicios
+
+```bash
+docker compose down
+```
+
+### Recargar seed desde cero
+
+El seed solo se ejecuta cuando el volumen de MongoDB esta vacio. Para reconstruir la base desde cero:
+
+```bash
+docker compose down -v
+docker compose up --build -d
+```
+
+Este comando elimina el volumen `mongo_data`, por eso debe usarse solo cuando se quiera reiniciar los datos.
+
+### Frontend local
+
+En otra terminal:
+
+```bash
+cd frontend
+npm run dev
+```
+
+Abrir:
+
+```text
+http://localhost:5173
+```
