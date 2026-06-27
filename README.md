@@ -415,3 +415,15 @@ Actualizacion de flujo de perfil:
 - La suscripcion inicial se elige solo cuando el usuario no tiene plan activo.
 - Una vez dentro del sistema, el cambio de plan se realiza unicamente desde `Perfil`.
 - El selector de suscripcion ya no aparece en todos los modulos operativos.
+Correccion de IAM por rol:
+
+- Al crear cuenta, el usuario debe elegir un rol: Administrador, Operador o Conductor.
+- El dashboard no se desbloquea solo por contratar Premium.
+- Los modulos visibles se calculan cruzando rol + plan.
+- Premium desbloquea mas capacidades del plan, pero el rol sigue limitando el alcance operativo.
+
+| Rol | Alcance principal |
+|---|---|
+| Administrador | Gestion completa del TMS, IAM, reportes y configuracion |
+| Operador | Clientes, flota, rutas, pedidos, despachos e incidencias |
+| Conductor | Despachos, GPS, incidencias, notificaciones y comunicacion interna |

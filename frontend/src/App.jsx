@@ -3,6 +3,23 @@ import { Boxes, CheckCircle2, Crown, Database, Edit3, Loader2, LogOut, Plus, Ref
 import { apiRequest, clearSession, getStoredUser, setSession } from "./api.js";
 import { modules } from "./modules.js";
 
+const roleDefinitions = {
+  Administrador: {
+    title: "Administrador",
+    description: "Gestion completa del TMS, IAM, reportes y configuracion.",
+    modules: modules.map((module) => module.key),
+  },
+  Operador: {
+    title: "Operador",
+    description: "Gestion operativa de clientes, rutas, pedidos, despachos e incidencias.",
+    modules: ["clientes", "vehiculos", "conductores", "zonas", "rutas", "pedidos", "despachos", "seguimiento_gps", "incidencias", "notificaciones", "suscripciones"],
+  },
+  Conductor: {
+    title: "Conductor",
+    description: "Consulta de despachos asignados, GPS, incidencias y comunicacion interna.",
+    modules: ["despachos", "seguimiento_gps", "incidencias", "notificaciones", "publicaciones_feed", "comentarios", "suscripciones"],
+  },
+};
 const planDefinitions = {
   plus: {
     title: "Plus",
@@ -60,6 +77,7 @@ function AuthScreen({ onAuth }) {
   const [password, setPassword] = useState("");
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
+  const [rol, setRol] = useState("Operador");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -70,7 +88,7 @@ function AuthScreen({ onAuth }) {
 
     try {
       const path = mode === "login" ? "/auth/login" : "/auth/register";
-      const body = mode === "login" ? { email, password } : { nombre, email, password, telefono };
+      const body = mode === "login" ? { email, password } : { nombre, email, password, telefono, rol };
       const result = await apiRequest(path, { method: "POST", body: JSON.stringify(body) });
       setSession(result.token, result.user);
       onAuth(result.user);
@@ -86,7 +104,7 @@ function AuthScreen({ onAuth }) {
       <form className="loginBox" onSubmit={submit}>
         <div className="brand big"><div className="brandMark"><Truck size={24} /></div><div><strong>Translogix TMS</strong><span>IAM de acceso seguro</span></div></div>
         <div className="authTabs"><button className={mode === "login" ? "active" : ""} type="button" onClick={() => setMode("login")}>Iniciar sesion</button><button className={mode === "register" ? "active" : ""} type="button" onClick={() => setMode("register")}>Crear cuenta</button></div>
-        {mode === "register" && <><label className="field"><span>Nombre</span><input value={nombre} onChange={(e) => setNombre(e.target.value)} required /></label><label className="field"><span>Telefono</span><input value={telefono} onChange={(e) => setTelefono(e.target.value)} /></label></>}
+        {mode === "register" && <><label className="field"><span>Nombre</span><input value={nombre} onChange={(e) => setNombre(e.target.value)} required /></label><label className="field"><span>Telefono</span><input value={telefono} onChange={(e) => setTelefono(e.target.value)} /></label><label className="field"><span>Rol</span><select value={rol} onChange={(e) => setRol(e.target.value)}>{Object.values(roleDefinitions).map((role) => <option key={role.title} value={role.title}>{role.title}</option>)}</select></label><div className="roleHint">{roleDefinitions[rol].description}</div></>}
         <label className="field"><span>Email</span><input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="example@gmail.com" required /></label>
         <label className="field"><span>Password</span><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Minimo 6 caracteres" required minLength={6} /></label>
         {error && <div className="notice error"><X size={18} /><span>{error}</span></div>}
@@ -166,7 +184,7 @@ function ProfileView({ user, onUserChange }) {
           <p>{user.email}</p>
         </div>
         <dl className="profileFacts">
-          <div><dt>Rol</dt><dd>{user.rol}</dd></div>
+          <div><dt>Rol</dt><dd>{user.rol}</dd></div><div><dt>Alcance</dt><dd>{roleDefinitions[user.rol]?.description || "Sin alcance definido"}</dd></div>
           <div><dt>Telefono</dt><dd>{user.telefono || "No registrado"}</dd></div>
           <div><dt>Plan actual</dt><dd>{planDefinitions[user.suscripcion?.plan]?.title || "Sin plan"}</dd></div>
           <div><dt>Estado</dt><dd>{user.suscripcion?.estado || "Pendiente"}</dd></div>
@@ -198,7 +216,9 @@ export default function App() {
   const [user, setUser] = useState(getStoredUser());
   const availableModules = useMemo(() => {
     const plan = user?.suscripcion?.plan;
-    const allowed = planDefinitions[plan]?.modules || [];
+    const planModules = planDefinitions[plan]?.modules || [];
+    const roleModules = roleDefinitions[user?.rol]?.modules || [];
+    const allowed = planModules.filter((moduleKey) => roleModules.includes(moduleKey));
     return modules.filter((module) => allowed.includes(module.key));
   }, [user]);
   const [activeKey, setActiveKey] = useState("clientes");

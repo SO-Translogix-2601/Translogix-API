@@ -15,9 +15,9 @@ export function createAuthService() {
       return createSession(user);
     },
 
-    async register({ nombre, email, password, telefono }) {
-      if (!nombre || !email || !password) {
-        const error = new Error("Nombre, email y password son obligatorios");
+    async register({ nombre, email, password, telefono, rol }) {
+      if (!nombre || !email || !password || !rol) {
+        const error = new Error("Nombre, email, password y rol son obligatorios");
         error.statusCode = 400;
         throw error;
       }
@@ -29,17 +29,19 @@ export function createAuthService() {
         throw error;
       }
 
-      const defaultRole =
-        (await Role.findOne({ nombre: "Operador" })) ||
-        (await Role.findOne({ nombre: "Administrador" })) ||
-        (await Role.findOne());
+      const selectedRole = await Role.findOne({ nombre: rol });
+      if (!selectedRole || !["Administrador", "Operador", "Conductor"].includes(selectedRole.nombre)) {
+        const error = new Error("Rol no valido");
+        error.statusCode = 400;
+        throw error;
+      }
 
       const passwordHash = await bcrypt.hash(password, 10);
       const user = await Usuario.create({
         nombre,
         email,
         password_hash: passwordHash,
-        rol_id: defaultRole?._id,
+        rol_id: selectedRole._id,
         activo: true,
         telefono,
       });
