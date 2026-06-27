@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { createAuthService, verifyToken } from "../../application/authService.js";
 
 const authService = createAuthService();
@@ -11,6 +11,15 @@ export function authRoutes() {
       const result = await authService.login(req.body);
       if (!result) return res.status(401).json({ message: "Credenciales invalidas" });
       res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.post("/register", async (req, res, next) => {
+    try {
+      const result = await authService.register(req.body);
+      res.status(201).json(result);
     } catch (error) {
       next(error);
     }

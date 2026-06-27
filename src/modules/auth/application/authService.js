@@ -1,6 +1,6 @@
-﻿import bcrypt from "bcryptjs";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { Usuario } from "../../translogix/infrastructure/mongoose/models.js";
+import { Role, Usuario } from "../../translogix/infrastructure/mongoose/models.js";
 import { buildUserSession, chooseSubscription } from "../../translogix/application/bootstrapDemoData.js";
 
 export function createAuthService() {
@@ -12,14 +12,39 @@ export function createAuthService() {
       const validPassword = await bcrypt.compare(password, user.password_hash);
       if (!validPassword) return null;
 
-      const session = await buildUserSession(user);
-      const token = jwt.sign(
-        { sub: String(user._id), email: user.email, rol: session.rol },
-        process.env.JWT_SECRET || "translogix_demo_secret_2026",
-        { expiresIn: process.env.JWT_EXPIRES_IN || "8h" }
-      );
+      return createSession(user);
+    },
 
-      return { token, user: session };
+    async register({ nombre, email, password, telefono }) {
+      if (!nombre || !email || !password) {
+        const error = new Error("Nombre, email y password son obligatorios");
+        error.statusCode = 400;
+        throw error;
+      }
+
+      const exists = await Usuario.findOne({ email });
+      if (exists) {
+        const error = new Error("El email ya esta registrado");
+        error.statusCode = 409;
+        throw error;
+      }
+
+      const defaultRole =
+        (await Role.findOne({ nombre: "Operador" })) ||
+        (await Role.findOne({ nombre: "Administrador" })) ||
+        (await Role.findOne());
+
+      const passwordHash = await bcrypt.hash(password, 10);
+      const user = await Usuario.create({
+        nombre,
+        email,
+        password_hash: passwordHash,
+        rol_id: defaultRole?._id,
+        activo: true,
+        telefono,
+      });
+
+      return createSession(user);
     },
 
     async me(userId) {
@@ -31,6 +56,17 @@ export function createAuthService() {
       return chooseSubscription(userId, plan);
     },
   };
+}
+
+async function createSession(user) {
+  const session = await buildUserSession(user);
+  const token = jwt.sign(
+    { sub: String(user._id), email: user.email, rol: session.rol },
+    process.env.JWT_SECRET || "translogix_demo_secret_2026",
+    { expiresIn: process.env.JWT_EXPIRES_IN || "8h" }
+  );
+
+  return { token, user: session };
 }
 
 export function verifyToken(token) {

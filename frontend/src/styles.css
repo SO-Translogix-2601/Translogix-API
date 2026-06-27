@@ -524,3 +524,100 @@ th {
     flex-direction: column;
   }
 }
+.authTabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.authTabs button {
+  min-height: 40px;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #475467;
+  font-weight: 700;
+}
+
+.authTabs button.active {
+  background: #17324d;
+  border-color: #17324d;
+  color: #ffffff;
+}
+
+.planPage {
+  min-height: 100vh;
+  padding: 32px;
+  background: #eef3f7;
+}
+
+.planHero {
+  max-width: 1040px;
+  margin: 0 auto 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.planHero h1 {
+  font-size: 34px;
+  margin: 8px 0 0;
+}
+
+.planHero p {
+  color: #475467;
+  max-width: 720px;
+}
+
+.planGrid {
+  max-width: 1040px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.planChoice {
+  background: #ffffff;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  padding: 22px;
+  display: grid;
+  gap: 12px;
+}
+
+.planChoice h2 {
+  font-size: 26px;
+  margin: 0;
+}
+
+.planChoice strong {
+  color: #17324d;
+}
+
+.planChoice p,
+.planChoice li {
+  color: #475467;
+}
+
+.planChoice ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.planChoice:first-child {
+  border-top: 4px solid #2fbf71;
+}
+
+.planChoice:last-child {
+  border-top: 4px solid #f2b84b;
+}
+
+@media (max-width: 780px) {
+  .planPage {
+    padding: 16px;
+  }
+
+  .planGrid {
+    grid-template-columns: 1fr;
+  }
+}

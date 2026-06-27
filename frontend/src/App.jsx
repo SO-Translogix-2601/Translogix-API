@@ -1,13 +1,26 @@
 import { useEffect, useMemo, useState } from "react";
-import { Boxes, CheckCircle2, Crown, Database, Edit3, Loader2, LogOut, Plus, RefreshCcw, Save, Search, ShieldCheck, Trash2, Truck, X } from "lucide-react";
+import { Boxes, CheckCircle2, Crown, Database, Edit3, Loader2, LogOut, Plus, RefreshCcw, Save, Search, ShieldCheck, Trash2, Truck, UserPlus, X } from "lucide-react";
 import { apiRequest, clearSession, getStoredUser, setSession } from "./api.js";
 import { modules } from "./modules.js";
 
 const demoAccounts = ["carlosmen@gmail.com", "atorres@translogix.pe", "lquispe@translogix.pe"];
 const demoPassword = "Translogix2026!";
-const plans = {
-  plus: ["CRUD logistico", "Dashboard operativo", "Notificaciones internas"],
-  premium: ["CRUD logistico", "Dashboard operativo", "Notificaciones internas", "Reportes avanzados", "Feed corporativo"],
+
+const planDefinitions = {
+  plus: {
+    title: "Plus",
+    subtitle: "Operacion logistica esencial",
+    description: "Para equipos que necesitan controlar clientes, flota, rutas, pedidos y despachos de ultima milla.",
+    modules: ["clientes", "vehiculos", "conductores", "zonas", "rutas", "pedidos", "despachos", "seguimiento_gps", "incidencias", "notificaciones", "suscripciones"],
+    features: ["CRUD logistico operativo", "Monitoreo GPS", "Gestion de incidencias", "Notificaciones internas"],
+  },
+  premium: {
+    title: "Premium",
+    subtitle: "Arquitectura completa para crecimiento",
+    description: "Incluye toda la operacion Plus mas IAM administrativo, mantenimiento, reportes y red social corporativa.",
+    modules: modules.map((module) => module.key),
+    features: ["Todos los modulos", "Usuarios y roles", "Reportes avanzados", "Mantenimientos", "Feed y comentarios"],
+  },
 };
 
 const formatValue = (value) => {
@@ -44,9 +57,12 @@ function toForm(module, item) {
   return form;
 }
 
-function Login({ onLogin }) {
+function AuthScreen({ onAuth }) {
+  const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("carlosmen@gmail.com");
   const [password, setPassword] = useState(demoPassword);
+  const [nombre, setNombre] = useState("");
+  const [telefono, setTelefono] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -54,10 +70,13 @@ function Login({ onLogin }) {
     event.preventDefault();
     setLoading(true);
     setError("");
+
     try {
-      const result = await apiRequest("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+      const path = mode === "login" ? "/auth/login" : "/auth/register";
+      const body = mode === "login" ? { email, password } : { nombre, email, password, telefono };
+      const result = await apiRequest(path, { method: "POST", body: JSON.stringify(body) });
       setSession(result.token, result.user);
-      onLogin(result.user);
+      onAuth(result.user);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -68,13 +87,58 @@ function Login({ onLogin }) {
   return (
     <main className="loginPage">
       <form className="loginBox" onSubmit={submit}>
-        <div className="brand big"><div className="brandMark"><Truck size={24} /></div><div><strong>Translogix</strong><span>Acceso operativo</span></div></div>
-        <label className="field"><span>Email</span><input value={email} onChange={(e) => setEmail(e.target.value)} /></label>
-        <label className="field"><span>Password</span><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} /></label>
+        <div className="brand big"><div className="brandMark"><Truck size={24} /></div><div><strong>Translogix TMS</strong><span>IAM de acceso seguro</span></div></div>
+        <div className="authTabs"><button className={mode === "login" ? "active" : ""} type="button" onClick={() => setMode("login")}>Iniciar sesion</button><button className={mode === "register" ? "active" : ""} type="button" onClick={() => setMode("register")}>Crear cuenta</button></div>
+        {mode === "register" && <><label className="field"><span>Nombre</span><input value={nombre} onChange={(e) => setNombre(e.target.value)} required /></label><label className="field"><span>Telefono</span><input value={telefono} onChange={(e) => setTelefono(e.target.value)} /></label></>}
+        <label className="field"><span>Email</span><input value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
+        <label className="field"><span>Password</span><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} /></label>
         {error && <div className="notice error"><X size={18} /><span>{error}</span></div>}
-        <button className="primaryButton full" disabled={loading} type="submit">{loading ? <Loader2 className="spin" size={18} /> : <ShieldCheck size={18} />}Ingresar</button>
-        <div className="demoBox"><strong>Usuarios demo</strong>{demoAccounts.map((account) => <button key={account} type="button" onClick={() => setEmail(account)}>{account}</button>)}<span>Password: {demoPassword}</span></div>
+        <button className="primaryButton full" disabled={loading} type="submit">{loading ? <Loader2 className="spin" size={18} /> : mode === "login" ? <ShieldCheck size={18} /> : <UserPlus size={18} />}{mode === "login" ? "Ingresar" : "Crear cuenta"}</button>
+        <div className="demoBox"><strong>Usuarios demo</strong>{demoAccounts.map((account) => <button key={account} type="button" onClick={() => { setMode("login"); setEmail(account); setPassword(demoPassword); }}>{account}</button>)}<span>Password: {demoPassword}</span></div>
       </form>
+    </main>
+  );
+}
+
+function PlanGate({ user, onUserChange, onLogout }) {
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  async function choose(plan) {
+    setSaving(true);
+    setError("");
+    try {
+      const updated = await apiRequest("/auth/suscripcion", { method: "POST", body: JSON.stringify({ plan }) });
+      localStorage.setItem("translogix_user", JSON.stringify(updated));
+      onUserChange(updated);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <main className="planPage">
+      <section className="planHero">
+        <div className="brand big"><div className="brandMark"><Truck size={24} /></div><div><strong>Translogix TMS</strong><span>Arquitectura de tres capas para ultima milla</span></div></div>
+        <h1>Elige tu suscripcion</h1>
+        <p>{user.nombre}, tu cuenta IAM ya fue verificada. Para entrar al sistema debes elegir un plan.</p>
+        <button className="secondaryButton" onClick={onLogout} type="button"><LogOut size={18} />Salir</button>
+      </section>
+      {error && <div className="notice error"><X size={18} /><span>{error}</span></div>}
+      <section className="planGrid">
+        {Object.entries(planDefinitions).map(([key, plan]) => (
+          <article className="planChoice" key={key}>
+            <Crown size={24} />
+            <h2>{plan.title}</h2>
+            <strong>{plan.subtitle}</strong>
+            <p>{plan.description}</p>
+            <ul>{plan.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
+            <button className="primaryButton full" disabled={saving} onClick={() => choose(key)} type="button">Elegir {plan.title}</button>
+          </article>
+        ))}
+      </section>
     </main>
   );
 }
@@ -91,11 +155,11 @@ function SubscriptionPanel({ user, onUserChange }) {
 
   return (
     <section className="subscriptionBar">
-      {Object.entries(plans).map(([plan, features]) => (
+      {Object.entries(planDefinitions).map(([plan, info]) => (
         <button className={user?.suscripcion?.plan === plan ? "plan active" : "plan"} key={plan} onClick={() => choose(plan)} disabled={saving} type="button">
           <Crown size={18} />
-          <strong>{plan.toUpperCase()}</strong>
-          <span>{features.join(" · ")}</span>
+          <strong>{info.title}</strong>
+          <span>{info.subtitle}</span>
         </button>
       ))}
     </section>
@@ -104,6 +168,11 @@ function SubscriptionPanel({ user, onUserChange }) {
 
 export default function App() {
   const [user, setUser] = useState(getStoredUser());
+  const availableModules = useMemo(() => {
+    const plan = user?.suscripcion?.plan;
+    const allowed = planDefinitions[plan]?.modules || [];
+    return modules.filter((module) => allowed.includes(module.key));
+  }, [user]);
   const [activeKey, setActiveKey] = useState("clientes");
   const [items, setItems] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -113,14 +182,20 @@ export default function App() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
 
-  const activeModule = useMemo(() => modules.find((module) => module.key === activeKey) || modules[0], [activeKey]);
+  const activeModule = useMemo(() => availableModules.find((module) => module.key === activeKey) || availableModules[0], [activeKey, availableModules]);
   const filteredItems = useMemo(() => {
     const term = query.trim().toLowerCase();
     if (!term) return items;
     return items.filter((item) => JSON.stringify(item).toLowerCase().includes(term));
   }, [items, query]);
 
+  function logout() {
+    clearSession();
+    setUser(null);
+  }
+
   async function loadItems() {
+    if (!activeModule) return;
     setLoading(true);
     setMessage(null);
     try {
@@ -134,19 +209,22 @@ export default function App() {
   }
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.suscripcion || !activeModule) return;
     setSelected(null);
     setForm(toForm(activeModule));
     setQuery("");
     loadItems();
-  }, [activeModule.key, user]);
+  }, [activeModule?.key, user?.suscripcion?.plan]);
 
-  if (!user) return <Login onLogin={setUser} />;
+  useEffect(() => {
+    if (availableModules.length && !availableModules.some((module) => module.key === activeKey)) {
+      setActiveKey(availableModules[0].key);
+    }
+  }, [availableModules, activeKey]);
 
-  function logout() {
-    clearSession();
-    setUser(null);
-  }
+  if (!user) return <AuthScreen onAuth={setUser} />;
+  if (!user.suscripcion) return <PlanGate user={user} onUserChange={setUser} onLogout={logout} />;
+  if (!activeModule) return null;
 
   function startCreate() { setSelected(null); setForm(toForm(activeModule)); setMessage(null); }
   function startEdit(item) { setSelected(item); setForm(toForm(activeModule, item)); setMessage(null); }
@@ -193,8 +271,8 @@ export default function App() {
   return (
     <div className="shell">
       <aside className="sidebar">
-        <div className="brand"><div className="brandMark"><Truck size={22} /></div><div><strong>Translogix</strong><span>{user.rol} · {user.suscripcion?.plan || "sin plan"}</span></div></div>
-        <nav className="moduleNav" aria-label="Modulos">{modules.map((module) => <button className={module.key === activeKey ? "active" : ""} key={module.key} onClick={() => setActiveKey(module.key)} type="button"><Boxes size={18} /><span>{module.title}</span></button>)}</nav>
+        <div className="brand"><div className="brandMark"><Truck size={22} /></div><div><strong>Translogix</strong><span>{user.rol} | {planDefinitions[user.suscripcion.plan]?.title}</span></div></div>
+        <nav className="moduleNav" aria-label="Modulos">{availableModules.map((module) => <button className={module.key === activeKey ? "active" : ""} key={module.key} onClick={() => setActiveKey(module.key)} type="button"><Boxes size={18} /><span>{module.title}</span></button>)}</nav>
       </aside>
 
       <main className="content">

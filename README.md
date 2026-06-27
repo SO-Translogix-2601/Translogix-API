@@ -375,3 +375,36 @@ Planes disponibles:
 | Premium | Todo Plus, reportes avanzados y feed corporativo |
 
 La capa de presentacion ahora consume todos los recursos del backend, incluido `/api/suscripciones`.
+---
+
+## Flujo funcional Translogix TMS
+
+El enfoque del proyecto se alinea con una arquitectura de software de tres capas para una plataforma TMS orientada a ultima milla y crecimiento logistico.
+
+Flujo principal:
+
+```text
+IAM
+  -> Iniciar sesion o crear cuenta
+  -> Verificar si el usuario tiene suscripcion activa
+  -> Si no tiene plan, elegir Plus o Premium
+  -> Entrar al dashboard operativo
+  -> Usar modulos segun el plan contratado
+```
+
+| Etapa | Capa involucrada | Implementacion |
+|---|---|---|
+| IAM | Presentacion + Aplicacion + Datos | Login, registro, JWT, usuarios y roles |
+| Suscripcion | Presentacion + Aplicacion + Datos | Eleccion de plan Plus o Premium sin pasarela de pago |
+| Operacion TMS | Presentacion | Dashboard React con CRUD por modulo |
+| Casos de uso | Aplicacion | Servicios CRUD, auth y seleccion de suscripcion |
+| Persistencia | Datos | MongoDB, Mongoose, modelos y repositorios |
+
+Diferencia de planes:
+
+| Plan | Alcance |
+|---|---|
+| Plus | Clientes, vehiculos, conductores, zonas, rutas, pedidos, despachos, seguimiento GPS, incidencias, notificaciones y suscripciones |
+| Premium | Incluye todo Plus y desbloquea roles, usuarios, mantenimientos, reportes, feed corporativo y comentarios |
+
+Si un usuario inicia sesion y no tiene plan, la app no le muestra el dashboard; primero lo lleva a la pantalla de seleccion de suscripcion. Si crea una cuenta nueva, tambien pasa por la misma seleccion obligatoria.
