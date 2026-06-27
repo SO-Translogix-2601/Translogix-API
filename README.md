@@ -351,7 +351,7 @@ VITE_API_URL=http://localhost:3000/api
 
 La rama `capa-presentacion` incluye autenticacion real con **JWT** y passwords hasheadas con **bcryptjs**. Al iniciar el backend se ejecuta un bootstrap de datos demo que corrige los hashes falsos del seed inicial y crea suscripciones activas.
 
-Credenciales demo:
+Credenciales de desarrollo:
 
 | Usuario | Email | Password |
 |---|---|---|
@@ -408,3 +408,10 @@ Diferencia de planes:
 | Premium | Incluye todo Plus y desbloquea roles, usuarios, mantenimientos, reportes, feed corporativo y comentarios |
 
 Si un usuario inicia sesion y no tiene plan, la app no le muestra el dashboard; primero lo lleva a la pantalla de seleccion de suscripcion. Si crea una cuenta nueva, tambien pasa por la misma seleccion obligatoria.
+Actualizacion de flujo de perfil:
+
+- La pantalla de inicio muestra solo IAM: iniciar sesion o crear cuenta.
+- El campo de correo usa `example@gmail.com` como referencia visual.
+- La suscripcion inicial se elige solo cuando el usuario no tiene plan activo.
+- Una vez dentro del sistema, el cambio de plan se realiza unicamente desde `Perfil`.
+- El selector de suscripcion ya no aparece en todos los modulos operativos.
