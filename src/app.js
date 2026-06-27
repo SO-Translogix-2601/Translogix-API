@@ -2,10 +2,10 @@
 import cors from "cors";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
-import { modelsByRoute } from "./models/index.js";
-import { crudRoutes } from "./routes/crudRoutes.js";
-import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 import { swaggerSpec } from "./config/swagger.js";
+import { resourceNames } from "./modules/translogix/domain/resourceCatalog.js";
+import { createTranslogixRouter } from "./modules/translogix/interfaces/http/translogixRoutes.js";
+import { errorHandler, notFound } from "./shared/middleware/errorMiddleware.js";
 
 export const app = express();
 
@@ -18,8 +18,9 @@ app.get("/", (req, res) => {
   res.json({
     name: "Translogix API",
     status: "ok",
+    architecture: "DDD ligera por modulo",
     docs: "/api-docs",
-    endpoints: Object.keys(modelsByRoute).map((route) => `/api/${route}`),
+    endpoints: resourceNames.map((route) => `/api/${route}`),
   });
 });
 
@@ -27,9 +28,7 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-for (const [route, Model] of Object.entries(modelsByRoute)) {
-  app.use(`/api/${route}`, crudRoutes(Model));
-}
+app.use("/api", createTranslogixRouter());
 
 app.use(notFound);
 app.use(errorHandler);

@@ -226,6 +226,19 @@ Cada endpoint soporta:
 
 ---
 
+## Arquitectura aplicada
+
+El backend usa una estructura **modular inspirada en DDD**. No se aplico DDD completa porque el proyecto es principalmente CRUD, pero si se separaron responsabilidades para que el codigo sea mas escalable.
+
+| Capa | Ubicacion | Responsabilidad |
+|---|---|---|
+| Domain | `modules/translogix/domain` | Define los recursos principales del modulo Translogix |
+| Application | `modules/translogix/application` | Contiene la logica de casos de uso CRUD |
+| Infrastructure | `modules/translogix/infrastructure` | Conecta con MongoDB usando Mongoose y repositorios |
+| Interfaces | `modules/translogix/interfaces/http` | Expone rutas y controladores HTTP con Express |
+| Shared | `shared` | Codigo compartido, como middlewares de error |
+| Config | `config` | Conexion a MongoDB y configuracion Swagger |
+
 ## Estructura del backend
 
 ```text
@@ -235,14 +248,25 @@ src/
   config/
     db.js
     swagger.js
-  controllers/
-    crudController.js
-  middleware/
-    errorMiddleware.js
-  models/
-    index.js
-  routes/
-    crudRoutes.js
+  modules/
+    translogix/
+      domain/
+        resourceCatalog.js
+      application/
+        createCrudService.js
+      infrastructure/
+        mongoose/
+          models.js
+        repositories/
+          createMongoCrudRepository.js
+      interfaces/
+        http/
+          createCrudController.js
+          createCrudRouter.js
+          translogixRoutes.js
+  shared/
+    middleware/
+      errorMiddleware.js
 ```
 
 | Carpeta o archivo | Funcion |
@@ -251,13 +275,18 @@ src/
 | `app.js` | Configura Express, rutas, Swagger y middlewares |
 | `config/db.js` | Conexion a MongoDB |
 | `config/swagger.js` | Configuracion de Swagger/OpenAPI |
-| `models/index.js` | Modelos Mongoose de las colecciones |
-| `controllers/crudController.js` | Logica generica para CRUD |
-| `routes/crudRoutes.js` | Rutas REST reutilizables |
-| `middleware/errorMiddleware.js` | Manejo de errores |
+| `domain/resourceCatalog.js` | Lista los recursos expuestos por la API |
+| `application/createCrudService.js` | Casos de uso CRUD y filtros de consulta |
+| `infrastructure/mongoose/models.js` | Modelos Mongoose de las colecciones |
+| `infrastructure/repositories/createMongoCrudRepository.js` | Acceso a datos con MongoDB |
+| `interfaces/http/createCrudController.js` | Controladores HTTP |
+| `interfaces/http/createCrudRouter.js` | Rutas REST reutilizables |
+| `interfaces/http/translogixRoutes.js` | Montaje de endpoints del modulo Translogix |
+| `shared/middleware/errorMiddleware.js` | Manejo centralizado de errores |
 
 ---
 
 ## Resumen
 
 Este backend se desarrollo con Express.js porque el proyecto necesita una API REST CRUD clara, facil de probar y conectada a MongoDB. Express permite trabajar de forma mas ordenada que usando solo Node.js puro, especialmente cuando hay muchas colecciones y endpoints.
+

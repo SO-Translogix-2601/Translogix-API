@@ -1,23 +1,8 @@
 ﻿import swaggerJSDoc from "swagger-jsdoc";
 
-const resources = [
-  "roles",
-  "usuarios",
-  "conductores",
-  "vehiculos",
-  "clientes",
-  "zonas",
-  "rutas",
-  "pedidos",
-  "despachos",
-  "seguimiento_gps",
-  "incidencias",
-  "mantenimientos",
-  "reportes",
-  "notificaciones",
-  "publicaciones_feed",
-  "comentarios",
-];
+import { resourceNames } from "../modules/translogix/domain/resourceCatalog.js";
+
+const resources = resourceNames;
 
 const paths = resources.reduce((acc, resource) => {
   acc[`/api/${resource}`] = {
@@ -154,3 +139,5 @@ export const swaggerSpec = swaggerJSDoc({
   },
   apis: [],
 });
+
+

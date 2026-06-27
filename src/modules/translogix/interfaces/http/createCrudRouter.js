@@ -1,9 +1,7 @@
 ﻿import { Router } from "express";
-import { createCrudController } from "../controllers/crudController.js";
 
-export function crudRoutes(Model) {
+export function createCrudRouter(controller) {
   const router = Router();
-  const controller = createCrudController(Model);
 
   router.get("/", controller.list);
   router.get("/:id", controller.getById);
