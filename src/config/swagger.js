@@ -2,8 +2,10 @@
 
 import { resourceNames } from "../modules/translogix/domain/resourceCatalog.js";
 
+// Swagger se genera a partir del catalogo de recursos para evitar repetir documentacion.
 const resources = resourceNames;
 
+// Construye dinamicamente las rutas OpenAPI CRUD para cada recurso del sistema.
 const paths = resources.reduce((acc, resource) => {
   acc[`/api/${resource}`] = {
     get: {
@@ -95,6 +97,7 @@ const paths = resources.reduce((acc, resource) => {
   return acc;
 }, {});
 
+// Especificacion OpenAPI que Swagger UI muestra en /api-docs.
 export const swaggerSpec = swaggerJSDoc({
   definition: {
     openapi: "3.0.0",
@@ -112,6 +115,7 @@ export const swaggerSpec = swaggerJSDoc({
     tags: resources.map((name) => ({ name })),
     components: {
       parameters: {
+        // Parametro reutilizable para endpoints que reciben un ObjectId de MongoDB.
         ObjectId: {
           name: "id",
           in: "path",
@@ -125,6 +129,7 @@ export const swaggerSpec = swaggerJSDoc({
       },
     },
     paths: {
+      // Endpoint manual de estado de la API; el resto se agrega con ...paths.
       "/api/health": {
         get: {
           tags: ["health"],
@@ -139,5 +144,4 @@ export const swaggerSpec = swaggerJSDoc({
   },
   apis: [],
 });
-
 

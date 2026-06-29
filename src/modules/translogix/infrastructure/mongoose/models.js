@@ -1,14 +1,19 @@
 ﻿import mongoose from "mongoose";
 
+// Se extraen helpers de Mongoose para definir schemas y modelos.
 const { Schema, model } = mongoose;
+// Helper reutilizable para referencias entre colecciones.
 const objectId = { type: Schema.Types.ObjectId };
+// Configuracion comun para guardar createdAt/updatedAt y ocultar __v.
 const timestamps = { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" }, versionKey: false };
 
+// Subdocumento reutilizable para guardar ubicaciones geograficas.
 const coordenadasSchema = new Schema(
   { lat: Number, lng: Number },
   { _id: false, versionKey: false }
 );
 
+// Subdocumento reutilizable para direcciones de clientes y pedidos.
 const direccionSchema = new Schema(
   {
     calle: String,
@@ -19,16 +24,19 @@ const direccionSchema = new Schema(
   { _id: false, versionKey: false }
 );
 
+// Subdocumento para archivos asociados a publicaciones del feed.
 const multimediaSchema = new Schema(
   { tipo: String, url: String, size_mb: Number },
   { _id: false, versionKey: false }
 );
 
+// Subdocumento para contar reacciones dentro de una publicacion.
 const reaccionSchema = new Schema(
   { emoji: String, cantidad: Number },
   { _id: false, versionKey: false }
 );
 
+// Coleccion roles: define permisos y perfiles de usuario.
 export const Role = model(
   "Role",
   new Schema(
@@ -42,6 +50,7 @@ export const Role = model(
   "roles"
 );
 
+// Coleccion usuarios: almacena cuentas del sistema y su rol asociado.
 export const Usuario = model(
   "Usuario",
   new Schema(
@@ -58,6 +67,7 @@ export const Usuario = model(
   "usuarios"
 );
 
+// Coleccion conductores: datos operativos de choferes y licencias.
 export const Conductor = model(
   "Conductor",
   new Schema(
@@ -76,6 +86,7 @@ export const Conductor = model(
   "conductores"
 );
 
+// Coleccion vehiculos: registra flota, capacidad, estado y mantenimiento.
 export const Vehiculo = model(
   "Vehiculo",
   new Schema(
@@ -96,6 +107,7 @@ export const Vehiculo = model(
   "vehiculos"
 );
 
+// Coleccion clientes: empresas o personas que solicitan entregas.
 export const Cliente = model(
   "Cliente",
   new Schema(
@@ -113,6 +125,7 @@ export const Cliente = model(
   "clientes"
 );
 
+// Coleccion zonas: agrupa distritos de reparto.
 export const Zona = model(
   "Zona",
   new Schema(
@@ -126,6 +139,7 @@ export const Zona = model(
   "zonas"
 );
 
+// Coleccion rutas: define recorridos, zona asociada y puntos de parada.
 export const Ruta = model(
   "Ruta",
   new Schema(
@@ -147,6 +161,7 @@ export const Ruta = model(
   "rutas"
 );
 
+// Coleccion pedidos: solicitudes de entrega de clientes.
 export const Pedido = model(
   "Pedido",
   new Schema(
@@ -168,6 +183,7 @@ export const Pedido = model(
   "pedidos"
 );
 
+// Coleccion despachos: asigna ruta, vehiculo, conductor y pedidos.
 export const Despacho = model(
   "Despacho",
   new Schema(
@@ -188,6 +204,7 @@ export const Despacho = model(
   "despachos"
 );
 
+// Coleccion seguimiento_gps: guarda posiciones de vehiculos/despachos.
 export const SeguimientoGps = model(
   "SeguimientoGps",
   new Schema(
@@ -203,6 +220,7 @@ export const SeguimientoGps = model(
   "seguimiento_gps"
 );
 
+// Coleccion incidencias: registra problemas ocurridos durante un despacho.
 export const Incidencia = model(
   "Incidencia",
   new Schema(
@@ -221,6 +239,7 @@ export const Incidencia = model(
   "incidencias"
 );
 
+// Coleccion mantenimientos: historial de servicios de vehiculos.
 export const Mantenimiento = model(
   "Mantenimiento",
   new Schema(
@@ -240,6 +259,7 @@ export const Mantenimiento = model(
   "mantenimientos"
 );
 
+// Coleccion reportes: almacena resumenes generados por usuarios.
 export const Reporte = model(
   "Reporte",
   new Schema(
@@ -254,6 +274,7 @@ export const Reporte = model(
   "reportes"
 );
 
+// Coleccion notificaciones: mensajes pendientes o leidos para usuarios.
 export const Notificacion = model(
   "Notificacion",
   new Schema(
@@ -270,6 +291,7 @@ export const Notificacion = model(
   "notificaciones"
 );
 
+// Coleccion publicaciones_feed: contenido social/operativo del sistema.
 export const PublicacionFeed = model(
   "PublicacionFeed",
   new Schema(
@@ -287,6 +309,7 @@ export const PublicacionFeed = model(
   "publicaciones_feed"
 );
 
+// Coleccion comentarios: respuestas asociadas a publicaciones del feed.
 export const Comentario = model(
   "Comentario",
   new Schema(
@@ -300,6 +323,7 @@ export const Comentario = model(
   "comentarios"
 );
 
+// Mapa que conecta el nombre de la ruta con su modelo Mongoose.
 export const modelsByRoute = {
   roles: Role,
   usuarios: Usuario,
@@ -318,3 +342,5 @@ export const modelsByRoute = {
   publicaciones_feed: PublicacionFeed,
   comentarios: Comentario,
 };
+
+

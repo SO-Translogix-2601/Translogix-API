@@ -1,3 +1,8 @@
-﻿node_modules/
+﻿# Dependencias instaladas localmente por npm.
+node_modules/
+
+# Variables sensibles o locales de entorno.
 .env
+
+# Archivos de log generados durante ejecucion o desarrollo.
 *.log

@@ -1,4 +1,6 @@
-﻿export const resourceCatalog = [
+﻿// Catalogo central de recursos publicados por la API.
+// Cada elemento se convierte en una ruta CRUD bajo /api/{name}.
+export const resourceCatalog = [
   { name: "roles", label: "Roles" },
   { name: "usuarios", label: "Usuarios" },
   { name: "conductores", label: "Conductores" },
@@ -17,4 +19,5 @@
   { name: "comentarios", label: "Comentarios" },
 ];
 
+// Lista simple de nombres usada por Swagger y por la ruta raiz.
 export const resourceNames = resourceCatalog.map((resource) => resource.name);

@@ -1,53 +1,65 @@
-version: "3.9"
+﻿version: "3.9"
 
 services:
-  # ── Base de datos MongoDB ───────────────────────────────────
+  # Servicio principal de base de datos. Se construye con el Dockerfile del proyecto.
   mongodb:
     build: .
     container_name: translogix_db
     restart: unless-stopped
     environment:
+      # Usuario administrador creado por la imagen oficial de MongoDB.
       MONGO_INITDB_ROOT_USERNAME: admin
+      # Password del usuario administrador.
       MONGO_INITDB_ROOT_PASSWORD: translogix2026
+      # Nombre de la base que se inicializa junto con el seed.
       MONGO_INITDB_DATABASE: translogix_db
     ports:
+      # Expone MongoDB del contenedor en localhost:27017.
       - "27017:27017"
     volumes:
+      # Persiste datos para que no se pierdan al reiniciar el contenedor.
       - mongo_data:/data/db
     networks:
+      # Red interna para que Mongo Express pueda comunicarse con MongoDB por nombre de servicio.
       - translogix_net
     healthcheck:
+      # Verifica que MongoDB responda antes de iniciar servicios dependientes.
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 20s
 
-  # Accede en: http://localhost:8081
-  # Usuario: admin  |  Contraseña: admin123
+  # Interfaz web para inspeccionar la base de datos desde el navegador.
   mongo-express:
     image: mongo-express:1.0.2
     container_name: translogix_mongo_express
     restart: on-failure
     depends_on:
+      # Espera a que MongoDB este healthy antes de arrancar la interfaz.
       mongodb:
         condition: service_healthy
     ports:
+      # Expone Mongo Express en http://localhost:8081.
       - "8081:8081"
     environment:
+      # Credenciales usadas por Mongo Express para conectarse a MongoDB.
       ME_CONFIG_MONGODB_ADMINUSERNAME: admin
       ME_CONFIG_MONGODB_ADMINPASSWORD: translogix2026
       ME_CONFIG_MONGODB_SERVER: mongodb
       ME_CONFIG_MONGODB_PORT: "27017"
+      # Usuario y password para entrar a la interfaz web.
       ME_CONFIG_BASICAUTH_USERNAME: admin
       ME_CONFIG_BASICAUTH_PASSWORD: admin123
     networks:
       - translogix_net
 
+# Volumen nombrado usado por MongoDB para persistencia.
 volumes:
   mongo_data:
     driver: local
 
+# Red bridge propia del proyecto para comunicar contenedores.
 networks:
   translogix_net:
     driver: bridge

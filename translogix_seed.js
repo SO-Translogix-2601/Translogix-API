@@ -1,4 +1,6 @@
+﻿// Selecciona la base de datos usada por el proyecto Translogix.
 db = db.getSiblingDB("translogix_db");
+// IDs fijos para relacionar documentos entre colecciones del seed.
 const ID = {
   // Roles
   ROL_ADMIN: "aaaaaaaaaaaaaaaaaaaaaaaa",
@@ -11,7 +13,7 @@ const ID = {
   // Conductores
   CON_LUIS: "111111111111111111111111",
   CON_MARIA: "222222222222222222222222",
-  // Vehículos
+  // VehÃ­culos
   VEH_ABC: "333333333333333333333333",
   VEH_XYZ: "444444444444444444444444",
   // Clientes
@@ -33,9 +35,11 @@ const ID = {
   DSP_002: "aaaaaaaaaaaaaaaaaaaaaab2",
 };
 
+// Convierte strings hexadecimales en ObjectId de MongoDB.
 function oid(hex) {
   return ObjectId(hex);
 }
+// Reinicia y carga roles base del sistema.
 db.roles.drop();
 db.roles.insertMany([
   {
@@ -48,18 +52,19 @@ db.roles.insertMany([
   {
     _id: oid(ID.ROL_OPERADOR),
     nombre: "Operador",
-    descripcion: "Gestión de rutas y despachos",
+    descripcion: "GestiÃ³n de rutas y despachos",
     permisos: ["read", "write"],
     createdAt: new Date(),
   },
   {
     _id: oid(ID.ROL_CONDUCTOR),
     nombre: "Conductor",
-    descripcion: "Visualización de rutas asignadas",
+    descripcion: "VisualizaciÃ³n de rutas asignadas",
     permisos: ["read"],
     createdAt: new Date(),
   },
 ]);
+// Reinicia y carga usuarios iniciales.
 db.usuarios.drop();
 db.usuarios.insertMany([
   {
@@ -93,6 +98,7 @@ db.usuarios.insertMany([
     createdAt: new Date(),
   },
 ]);
+// Reinicia y carga conductores iniciales.
 db.conductores.drop();
 db.conductores.insertMany([
   {
@@ -110,7 +116,7 @@ db.conductores.insertMany([
   {
     _id: oid(ID.CON_MARIA),
     usuario_id: null,
-    nombre_completo: "María Huanca López",
+    nombre_completo: "MarÃ­a Huanca LÃ³pez",
     dni: "87654321",
     licencia_conducir: "Q87654321",
     categoria_licencia: "A-IIb",
@@ -120,6 +126,7 @@ db.conductores.insertMany([
     createdAt: new Date(),
   },
 ]);
+// Reinicia y carga vehiculos de ejemplo.
 db.vehiculos.drop();
 db.vehiculos.insertMany([
   {
@@ -151,6 +158,7 @@ db.vehiculos.insertMany([
     createdAt: new Date(),
   },
 ]);
+// Reinicia y carga clientes de ejemplo.
 db.clientes.drop();
 db.clientes.insertMany([
   {
@@ -173,7 +181,7 @@ db.clientes.insertMany([
     _id: oid(ID.CLI_FARMA),
     razon_social: "Farmacias del Norte E.I.R.L.",
     ruc: "20987654321",
-    contacto: "Rosa Sánchez",
+    contacto: "Rosa SÃ¡nchez",
     telefono: "014445566",
     email: "compras@farmanorte.pe",
     direccion: {
@@ -186,18 +194,19 @@ db.clientes.insertMany([
     createdAt: new Date(),
   },
 ]);
+// Reinicia y carga zonas logisticas.
 db.zonas.drop();
 db.zonas.insertMany([
   {
     _id: oid(ID.ZONA_NORTE),
     nombre: "Zona Norte",
-    distritos: ["Los Olivos", "Independencia", "San Martín de Porres"],
+    distritos: ["Los Olivos", "Independencia", "San MartÃ­n de Porres"],
     activa: true,
   },
   {
     _id: oid(ID.ZONA_CENTRO),
     nombre: "Zona Centro",
-    distritos: ["Cercado de Lima", "Breña", "La Victoria"],
+    distritos: ["Cercado de Lima", "BreÃ±a", "La Victoria"],
     activa: true,
   },
   {
@@ -213,6 +222,7 @@ db.zonas.insertMany([
     activa: true,
   },
 ]);
+// Reinicia y carga rutas de reparto.
 db.rutas.drop();
 db.rutas.insertMany([
   {
@@ -222,7 +232,7 @@ db.rutas.insertMany([
     puntos_parada: [
       {
         orden: 1,
-        descripcion: "Almacén Central",
+        descripcion: "AlmacÃ©n Central",
         coordenadas: { lat: -12.02, lng: -77.05 },
       },
       {
@@ -248,7 +258,7 @@ db.rutas.insertMany([
     puntos_parada: [
       {
         orden: 1,
-        descripcion: "Almacén Central",
+        descripcion: "AlmacÃ©n Central",
         coordenadas: { lat: -12.02, lng: -77.05 },
       },
       {
@@ -269,6 +279,7 @@ db.rutas.insertMany([
   },
 ]);
 
+// Reinicia y carga pedidos asociados a clientes.
 db.pedidos.drop();
 db.pedidos.insertMany([
   {
@@ -294,7 +305,7 @@ db.pedidos.insertMany([
     _id: oid(ID.PED_002),
     codigo: "PED-2026-0002",
     cliente_id: oid(ID.CLI_FARMA),
-    descripcion: "Medicamentos e insumos médicos",
+    descripcion: "Medicamentos e insumos mÃ©dicos",
     peso_kg: 80,
     volumen_m3: 0.5,
     direccion_entrega: {
@@ -306,10 +317,11 @@ db.pedidos.insertMany([
     fecha_entrega_estimada: new Date("2026-06-12"),
     estado: "en_ruta",
     prioridad: "alta",
-    observaciones: "Frágil, requiere cuidado",
+    observaciones: "FrÃ¡gil, requiere cuidado",
     createdAt: new Date(),
   },
 ]);
+// Reinicia y carga despachos con ruta, vehiculo, conductor y pedidos.
 db.despachos.drop();
 db.despachos.insertMany([
   {
@@ -341,6 +353,7 @@ db.despachos.insertMany([
     createdAt: new Date(),
   },
 ]);
+// Reinicia y carga ubicaciones GPS de ejemplo.
 db.seguimiento_gps.drop();
 db.seguimiento_gps.insertMany([
   {
@@ -358,12 +371,13 @@ db.seguimiento_gps.insertMany([
     timestamp: new Date("2026-06-12T08:30:00Z"),
   },
 ]);
+// Reinicia y carga incidencias operativas.
 db.incidencias.drop();
 db.incidencias.insertMany([
   {
     despacho_id: oid(ID.DSP_001),
     tipo: "trafico",
-    descripcion: "Tráfico intenso en Av. Tomás Valle, retraso de 20 minutos",
+    descripcion: "TrÃ¡fico intenso en Av. TomÃ¡s Valle, retraso de 20 minutos",
     coordenadas: { lat: -11.995, lng: -77.065 },
     reportado_por: oid(ID.CON_LUIS),
     estado: "resuelto",
@@ -372,14 +386,15 @@ db.incidencias.insertMany([
     createdAt: new Date(),
   },
 ]);
+// Reinicia y carga mantenimientos de vehiculos.
 db.mantenimientos.drop();
 db.mantenimientos.insertMany([
   {
     vehiculo_id: oid(ID.VEH_ABC),
     tipo: "preventivo",
-    descripcion: "Cambio de aceite, filtros y revisión de frenos",
+    descripcion: "Cambio de aceite, filtros y revisiÃ³n de frenos",
     costo_soles: 350.0,
-    taller: "Taller Automotriz Rímac",
+    taller: "Taller Automotriz RÃ­mac",
     fecha_entrada: new Date("2025-12-01"),
     fecha_salida: new Date("2025-12-01"),
     km_al_mantenimiento: 44800,
@@ -389,9 +404,9 @@ db.mantenimientos.insertMany([
   {
     vehiculo_id: oid(ID.VEH_XYZ),
     tipo: "correctivo",
-    descripcion: "Reparación de sistema de frenos traseros",
+    descripcion: "ReparaciÃ³n de sistema de frenos traseros",
     costo_soles: 780.0,
-    taller: "Servicio Técnico Hyundai Lima",
+    taller: "Servicio TÃ©cnico Hyundai Lima",
     fecha_entrada: new Date("2026-01-14"),
     fecha_salida: new Date("2026-01-15"),
     km_al_mantenimiento: 71500,
@@ -399,6 +414,7 @@ db.mantenimientos.insertMany([
     createdAt: new Date(),
   },
 ]);
+// Reinicia y carga reportes generados.
 db.reportes.drop();
 db.reportes.insertMany([
   {
@@ -417,12 +433,13 @@ db.reportes.insertMany([
     createdAt: new Date(),
   },
 ]);
+// Reinicia y carga notificaciones de usuarios.
 db.notificaciones.drop();
 db.notificaciones.insertMany([
   {
     usuario_id: oid(ID.USR_ANA),
     tipo: "incidencia",
-    mensaje: "Nueva incidencia de tráfico reportada en Despacho DSP-2026-0001",
+    mensaje: "Nueva incidencia de trÃ¡fico reportada en Despacho DSP-2026-0001",
     referencia_id: oid(ID.DSP_001),
     referencia_tipo: "despacho",
     leida: true,
@@ -432,7 +449,7 @@ db.notificaciones.insertMany([
     usuario_id: oid(ID.USR_CARLOS),
     tipo: "alerta_mantenimiento",
     mensaje:
-      "Vehículo XYZ-456 se acerca al límite de mantenimiento (77,000 km)",
+      "VehÃ­culo XYZ-456 se acerca al lÃ­mite de mantenimiento (77,000 km)",
     referencia_id: oid(ID.VEH_XYZ),
     referencia_tipo: "vehiculo",
     leida: false,
@@ -451,13 +468,14 @@ db.seguimiento_gps.createIndex({ despacho_id: 1, timestamp: -1 });
 db.incidencias.createIndex({ despacho_id: 1 });
 db.notificaciones.createIndex({ usuario_id: 1, leida: 1 });
 
-print("Translogix TMS — 14 colecciones creadas con datos de ejemplo.");
+print("Translogix TMS â€” 14 colecciones creadas con datos de ejemplo.");
 
 
 // =========================================================================
-// MÓDULO DE RED SOCIAL CORPORATIVA (FEED, MULTIMEDIA Y COMENTARIOS)
+// MÃ“DULO DE RED SOCIAL CORPORATIVA (FEED, MULTIMEDIA Y COMENTARIOS)
 // =========================================================================
 
+// Reinicia y carga publicaciones del feed.
 db.publicaciones_feed.drop();
 db.publicaciones_feed.insertMany([
   {
@@ -465,59 +483,61 @@ db.publicaciones_feed.insertMany([
     autor_id: oid(ID.CON_LUIS), // Luis Quispe (Conductor)
     referencia_despacho: oid(ID.DSP_001),
     tipo_publicacion: "incidencia_multimedia",
-    contenido: "Acabo de pasar por la Av. Tomás Valle. El tráfico está completamente detenido por un choque. Adjunto video de la situación.",
+    contenido: "Acabo de pasar por la Av. TomÃ¡s Valle. El trÃ¡fico estÃ¡ completamente detenido por un choque. Adjunto video de la situaciÃ³n.",
     multimedia: [
       { tipo: "video", url: "https://translogix.blob.core.windows.net/media/video_trafico_001.mp4", size_mb: 14.5 }
     ],
     reacciones: [
-      { emoji: "⚠️", cantidad: 3 },
-      { emoji: "👀", cantidad: 1 },
-      { emoji: "🤬", cantidad: 2 }
+      { emoji: "âš ï¸", cantidad: 3 },
+      { emoji: "ðŸ‘€", cantidad: 1 },
+      { emoji: "ðŸ¤¬", cantidad: 2 }
     ],
     estado: "publicado",
     createdAt: new Date("2026-06-12T08:42:00Z")
   },
   {
      _id: oid("feeeed000000000000000002"),
-    autor_id: oid(ID.CON_MARIA), // María Huanca (Conductora)
+    autor_id: oid(ID.CON_MARIA), // MarÃ­a Huanca (Conductora)
     referencia_despacho: oid(ID.DSP_002),
     tipo_publicacion: "conformidad_entrega",
-    contenido: "Carga entregada exitosamente en Farmacias del Norte. El cliente verificó el lote. Todo conforme.",
+    contenido: "Carga entregada exitosamente en Farmacias del Norte. El cliente verificÃ³ el lote. Todo conforme.",
     multimedia: [
       { tipo: "imagen", url: "https://translogix.blob.core.windows.net/media/foto_guia_002.jpg", size_mb: 2.1 },
       { tipo: "audio", url: "https://translogix.blob.core.windows.net/media/nota_voz_cliente.ogg", size_mb: 1.2 }
     ],
     reacciones: [
-      { emoji: "👍", cantidad: 4 },
-      { emoji: "🎉", cantidad: 2 },
-      { emoji: "💪", cantidad: 1 }
+      { emoji: "ðŸ‘", cantidad: 4 },
+      { emoji: "ðŸŽ‰", cantidad: 2 },
+      { emoji: "ðŸ’ª", cantidad: 1 }
     ],
     estado: "publicado",
     createdAt: new Date("2026-06-12T10:35:00Z")
   }
 ]);
 
+// Reinicia y carga comentarios asociados al feed.
 db.comentarios.drop();
 db.comentarios.insertMany([
   {
-    _id: oid("c00000000000000000000001"), // Corregido: c000 es hexadecimal válido
+    _id: oid("c00000000000000000000001"), // Corregido: c000 es hexadecimal vÃ¡lido
     publicacion_id: oid("feeeed000000000000000001"),
     autor_id: oid(ID.USR_ANA), // Ana Torres (Operadora responde al conductor)
-    texto: "Copiado Luis. Estamos notificando al cliente sobre el retraso y alertando a los demás conductores para que eviten la zona.",
+    texto: "Copiado Luis. Estamos notificando al cliente sobre el retraso y alertando a los demÃ¡s conductores para que eviten la zona.",
     createdAt: new Date("2026-06-12T08:45:00Z")
   },
   {
     _id: oid("c00000000000000000000002"),
     publicacion_id: oid("feeeed000000000000000001"),
     autor_id: oid(ID.CON_MARIA), // Otra conductora comenta
-    texto: "Gracias por el aviso Luis, justo iba a tomar esa ruta. Me desvío por la Panamericana.",
+    texto: "Gracias por el aviso Luis, justo iba a tomar esa ruta. Me desvÃ­o por la Panamericana.",
     createdAt: new Date("2026-06-12T08:47:00Z")
   }
 ]);
 
-// Índices para optimizar las consultas del Feed estilo Red Social
+// Ãndices para optimizar las consultas del Feed estilo Red Social
 db.publicaciones_feed.createIndex({ autor_id: 1, createdAt: -1 });
 db.publicaciones_feed.createIndex({ referencia_despacho: 1 });
 db.comentarios.createIndex({ publicacion_id: 1, createdAt: 1 });
 
-print("Módulo de Red Social Interna: Feed, comentarios y multimedia inicializados.");
+print("MÃ³dulo de Red Social Interna: Feed, comentarios y multimedia inicializados.");
+
