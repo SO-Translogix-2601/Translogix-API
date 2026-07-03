@@ -349,7 +349,7 @@ VITE_API_URL=http://localhost:3000/api
 
 ## Login real y suscripciones
 
-La rama `capa-presentacion` incluye autenticacion real con **JWT** y passwords hasheadas con **bcryptjs**. Al iniciar el backend se ejecuta un bootstrap de datos demo que corrige los hashes falsos del seed inicial y crea suscripciones activas.
+La rama `capa-presentacion` incluye autenticacion real con **JWT** y passwords hasheadas con **bcryptjs**. Al iniciar el backend se ejecuta un bootstrap de datos de desarrollo que corrige los hashes falsos del seed inicial y crea suscripciones activas para pruebas de desarrollo.
 
 Credenciales de desarrollo:
 
@@ -494,3 +494,65 @@ Abrir:
 ```text
 http://localhost:5173
 ```
+
+
+---
+
+## Documentacion del frontend refinado
+
+La capa de presentacion fue refinada para comportarse como una aplicacion TMS. El flujo obliga primero a resolver IAM, luego suscripcion, y recien despues permite entrar al espacio operativo segun rol y plan.
+
+| Archivo | Que hace |
+|---|---|
+| `frontend/src/main.jsx` | Monta la aplicacion React dentro del navegador |
+| `frontend/src/App.jsx` | Controla login, registro, seleccion de plan, dashboard, perfil y CRUD |
+| `frontend/src/api.js` | Centraliza llamadas HTTP al backend, adjunta JWT y guarda o limpia sesion local |
+| `frontend/src/modules.js` | Define endpoints, titulos, columnas, campos y payload inicial de cada modulo |
+| `frontend/src/styles.css` | Define layout, dashboard, sidebar, tablas, formularios, perfil y responsive design |
+| `frontend/package.json` | Declara dependencias React/Vite y scripts `dev`, `build` y `preview` |
+
+Componentes principales:
+
+| Componente | Responsabilidad |
+|---|---|
+| `AuthScreen` | Muestra IAM inicial con login y registro; en registro exige rol |
+| `PlanGate` | Bloquea la entrada si el usuario autenticado aun no tiene plan activo |
+| `DashboardView` | Resume rol, plan, modulos disponibles y grupos funcionales del TMS |
+| `ProfileView` | Muestra datos del usuario y permite cambiar la suscripcion solo desde Perfil |
+| `ResourceView` | Renderiza la pantalla CRUD generica para cada recurso disponible |
+| `Shell` | Organiza sidebar, topbar, navegacion por grupos y cierre de sesion |
+
+Reglas de acceso:
+
+| Regla | Resultado |
+|---|---|
+| Usuario sin sesion | Solo ve IAM: iniciar sesion o crear cuenta |
+| Usuario registrado sin plan | Ve seleccion obligatoria de Plus o Premium |
+| Usuario con plan | Entra al dashboard operativo |
+| Cambio de plan | Solo se realiza desde Perfil |
+| Modulos visibles | Se calculan cruzando rol y plan |
+
+Matriz de planes:
+
+| Plan | Incluye |
+|---|---|
+| Plus | Clientes, vehiculos, conductores, zonas, rutas, pedidos, despachos, seguimiento GPS, incidencias, notificaciones y suscripciones |
+| Premium | Todo Plus mas roles, usuarios, mantenimientos, reportes, feed corporativo y comentarios |
+
+Matriz de roles:
+
+| Rol | Enfoque |
+|---|---|
+| Administrador | Gestion completa, IAM, configuracion, reportes y operacion total |
+| Operador | Operacion diaria: clientes, flota, rutas, pedidos, despachos e incidencias |
+| Conductor | Trabajo asignado: despachos, GPS, incidencias, notificaciones y comunicacion |
+
+Para validar la capa de presentacion:
+
+```bash
+cd frontend
+npm run build
+```
+
+Si el build termina correctamente, Vite genera `frontend/dist/` y confirma que la aplicacion compila para produccion.
+

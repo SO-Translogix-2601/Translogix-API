@@ -1,5 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
-import { Boxes, CheckCircle2, Crown, Database, Edit3, Loader2, LogOut, Plus, RefreshCcw, Save, Search, ShieldCheck, Trash2, Truck, UserPlus, UserRound, X } from "lucide-react";
+import {
+  Boxes,
+  CheckCircle2,
+  Crown,
+  Database,
+  Edit3,
+  Gauge,
+  Layers3,
+  Loader2,
+  LogOut,
+  MessageSquareText,
+  PackageCheck,
+  Plus,
+  RefreshCcw,
+  Save,
+  Search,
+  ShieldCheck,
+  Trash2,
+  Truck,
+  UserPlus,
+  UserRound,
+  X,
+} from "lucide-react";
 import { apiRequest, clearSession, getStoredUser, setSession } from "./api.js";
 import { modules } from "./modules.js";
 
@@ -20,22 +42,31 @@ const roleDefinitions = {
     modules: ["despachos", "seguimiento_gps", "incidencias", "notificaciones", "publicaciones_feed", "comentarios", "suscripciones"],
   },
 };
+
 const planDefinitions = {
   plus: {
     title: "Plus",
     subtitle: "Operacion logistica esencial",
-    description: "Para equipos que necesitan controlar clientes, flota, rutas, pedidos y despachos de ultima milla.",
+    description: "Control de clientes, flota, rutas, pedidos y despachos de ultima milla.",
     modules: ["clientes", "vehiculos", "conductores", "zonas", "rutas", "pedidos", "despachos", "seguimiento_gps", "incidencias", "notificaciones", "suscripciones"],
     features: ["CRUD logistico operativo", "Monitoreo GPS", "Gestion de incidencias", "Notificaciones internas"],
   },
   premium: {
     title: "Premium",
     subtitle: "Arquitectura completa para crecimiento",
-    description: "Incluye toda la operacion Plus mas IAM administrativo, mantenimiento, reportes y red social corporativa.",
+    description: "Incluye todo Plus mas IAM administrativo, mantenimiento, reportes y comunicacion interna.",
     modules: modules.map((module) => module.key),
     features: ["Todos los modulos", "Usuarios y roles", "Reportes avanzados", "Mantenimientos", "Feed y comentarios"],
   },
 };
+
+const moduleGroups = [
+  { title: "IAM", icon: ShieldCheck, keys: ["roles", "usuarios"] },
+  { title: "Operacion", icon: Truck, keys: ["clientes", "vehiculos", "conductores", "zonas", "rutas", "pedidos", "despachos"] },
+  { title: "Monitoreo", icon: Gauge, keys: ["seguimiento_gps", "incidencias", "mantenimientos"] },
+  { title: "Gestion", icon: PackageCheck, keys: ["reportes", "notificaciones", "suscripciones"] },
+  { title: "Comunicacion", icon: MessageSquareText, keys: ["publicaciones_feed", "comentarios"] },
+];
 
 const formatValue = (value) => {
   if (value === null || value === undefined || value === "") return "-";
@@ -100,9 +131,19 @@ function AuthScreen({ onAuth }) {
   }
 
   return (
-    <main className="loginPage">
+    <main className="authPage">
+      <section className="authIntro">
+        <div className="brand big"><div className="brandMark"><Truck size={24} /></div><div><strong>Translogix TMS</strong><span>Ultima milla con arquitectura de tres capas</span></div></div>
+        <h1>Gestion logistica con IAM, suscripciones y trazabilidad operativa.</h1>
+        <p>La aplicacion separa presentacion, aplicacion y datos para sostener crecimiento, integridad de informacion y monitoreo operativo.</p>
+        <div className="architectureStrip"><span>Presentacion</span><span>Aplicacion</span><span>Datos</span></div>
+      </section>
+
       <form className="loginBox" onSubmit={submit}>
-        <div className="brand big"><div className="brandMark"><Truck size={24} /></div><div><strong>Translogix TMS</strong><span>IAM de acceso seguro</span></div></div>
+        <div>
+          <p className="eyebrow">IAM</p>
+          <h2>{mode === "login" ? "Iniciar sesion" : "Crear cuenta"}</h2>
+        </div>
         <div className="authTabs"><button className={mode === "login" ? "active" : ""} type="button" onClick={() => setMode("login")}>Iniciar sesion</button><button className={mode === "register" ? "active" : ""} type="button" onClick={() => setMode("register")}>Crear cuenta</button></div>
         {mode === "register" && <><label className="field"><span>Nombre</span><input value={nombre} onChange={(e) => setNombre(e.target.value)} required /></label><label className="field"><span>Telefono</span><input value={telefono} onChange={(e) => setTelefono(e.target.value)} /></label><label className="field"><span>Rol</span><select value={rol} onChange={(e) => setRol(e.target.value)}>{Object.values(roleDefinitions).map((role) => <option key={role.title} value={role.title}>{role.title}</option>)}</select></label><div className="roleHint">{roleDefinitions[rol].description}</div></>}
         <label className="field"><span>Email</span><input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="example@gmail.com" required /></label>
@@ -135,9 +176,9 @@ function PlanGate({ user, onUserChange, onLogout }) {
   return (
     <main className="planPage">
       <section className="planHero">
-        <div className="brand big"><div className="brandMark"><Truck size={24} /></div><div><strong>Translogix TMS</strong><span>Arquitectura de tres capas para ultima milla</span></div></div>
-        <h1>Elige tu suscripcion</h1>
-        <p>{user.nombre}, tu cuenta IAM ya fue verificada. Para entrar al sistema debes elegir un plan.</p>
+        <div className="brand big"><div className="brandMark"><Truck size={24} /></div><div><strong>Translogix TMS</strong><span>Suscripcion requerida</span></div></div>
+        <h1>Elige el alcance inicial de tu cuenta</h1>
+        <p>{user.nombre}, tu rol es {user.rol}. El dashboard se desbloquea cruzando rol y plan.</p>
         <button className="secondaryButton" onClick={onLogout} type="button"><LogOut size={18} />Salir</button>
       </section>
       {error && <div className="notice error"><X size={18} /><span>{error}</span></div>}
@@ -154,6 +195,57 @@ function PlanGate({ user, onUserChange, onLogout }) {
         ))}
       </section>
     </main>
+  );
+}
+
+function DashboardView({ user, availableModules, onOpenModule }) {
+  const plan = planDefinitions[user.suscripcion?.plan];
+  const role = roleDefinitions[user.rol];
+  const visibleGroups = moduleGroups
+    .map((group) => ({ ...group, modules: availableModules.filter((module) => group.keys.includes(module.key)) }))
+    .filter((group) => group.modules.length > 0);
+
+  return (
+    <section className="dashboardPage">
+      <div className="metricGrid">
+        <article className="metricCard"><ShieldCheck size={20} /><span>Rol</span><strong>{role?.title}</strong></article>
+        <article className="metricCard"><Crown size={20} /><span>Plan</span><strong>{plan?.title}</strong></article>
+        <article className="metricCard"><Layers3 size={20} /><span>Modulos activos</span><strong>{availableModules.length}</strong></article>
+        <article className="metricCard"><Database size={20} /><span>API</span><strong>Online</strong></article>
+      </div>
+
+      <div className="dashboardGrid">
+        <section className="summaryPanel">
+          <p className="eyebrow">Flujo actual</p>
+          <h2>{role?.description}</h2>
+          <p>El acceso visible se calcula con la interseccion entre el rol IAM y la suscripcion activa. Premium no reemplaza permisos de rol; solo amplia capacidades disponibles.</p>
+        </section>
+        <section className="summaryPanel">
+          <p className="eyebrow">Operacion</p>
+          <h2>{plan?.subtitle}</h2>
+          <p>{plan?.description}</p>
+        </section>
+      </div>
+
+      <section className="moduleCatalog">
+        {visibleGroups.map((group) => {
+          const Icon = group.icon;
+          return (
+            <div className="moduleGroup" key={group.title}>
+              <div className="moduleGroupHeader"><Icon size={18} /><strong>{group.title}</strong></div>
+              <div className="moduleCards">
+                {group.modules.map((module) => (
+                  <button className="moduleCard" key={module.key} onClick={() => onOpenModule(module.key)} type="button">
+                    <span>{module.title}</span>
+                    <small>{module.description}</small>
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </section>
+    </section>
   );
 }
 
@@ -184,7 +276,8 @@ function ProfileView({ user, onUserChange }) {
           <p>{user.email}</p>
         </div>
         <dl className="profileFacts">
-          <div><dt>Rol</dt><dd>{user.rol}</dd></div><div><dt>Alcance</dt><dd>{roleDefinitions[user.rol]?.description || "Sin alcance definido"}</dd></div>
+          <div><dt>Rol</dt><dd>{user.rol}</dd></div>
+          <div><dt>Alcance</dt><dd>{roleDefinitions[user.rol]?.description || "Sin alcance definido"}</dd></div>
           <div><dt>Telefono</dt><dd>{user.telefono || "No registrado"}</dd></div>
           <div><dt>Plan actual</dt><dd>{planDefinitions[user.suscripcion?.plan]?.title || "Sin plan"}</dd></div>
           <div><dt>Estado</dt><dd>{user.suscripcion?.estado || "Pendiente"}</dd></div>
@@ -195,7 +288,7 @@ function ProfileView({ user, onUserChange }) {
         <div>
           <p className="eyebrow">Suscripcion</p>
           <h2>Cambiar plan</h2>
-          <p>La suscripcion solo se administra desde el perfil del usuario.</p>
+          <p>La suscripcion se administra desde el perfil. El rol IAM sigue limitando los modulos aunque se elija Premium.</p>
         </div>
         {error && <div className="notice error"><X size={18} /><span>{error}</span></div>}
         <div className="subscriptionBar inProfile">
@@ -212,6 +305,24 @@ function ProfileView({ user, onUserChange }) {
   );
 }
 
+function ResourceView({ activeModule, filteredItems, query, setQuery, loading, loadItems, startCreate, startEdit, deleteItem, selected, message, form, updateField, saveItem, saving }) {
+  return (
+    <section className="workspace">
+      <div className="listPanel">
+        <div className="panelHeader"><div><h2>Registros</h2><span>{filteredItems.length} visibles</span></div><div className="actions"><label className="searchBox"><Search size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar" /></label><button className="iconButton" onClick={loadItems} type="button" title="Actualizar">{loading ? <Loader2 className="spin" size={18} /> : <RefreshCcw size={18} />}</button><button className="primaryButton" onClick={startCreate} type="button"><Plus size={18} />Nuevo</button></div></div>
+        {message && <div className={`notice ${message.type}`}>{message.type === "success" ? <CheckCircle2 size={18} /> : <X size={18} />}<span>{message.text}</span></div>}
+        <div className="tableWrap"><table><thead><tr>{activeModule.columns.map((column) => <th key={column}>{column}</th>)}<th className="tableActions">Acciones</th></tr></thead><tbody>{filteredItems.map((item) => <tr key={item._id} className={selected?._id === item._id ? "selectedRow" : ""}>{activeModule.columns.map((column) => <td key={column}>{formatValue(item[column])}</td>)}<td className="tableActions"><button className="iconButton" onClick={() => startEdit(item)} type="button" title="Editar"><Edit3 size={17} /></button><button className="dangerButton" onClick={() => deleteItem(item)} type="button" title="Eliminar"><Trash2 size={17} /></button></td></tr>)}{!loading && filteredItems.length === 0 && <tr><td className="emptyState" colSpan={activeModule.columns.length + 1}>No hay registros para mostrar.</td></tr>}</tbody></table></div>
+      </div>
+
+      <form className="formPanel" onSubmit={saveItem}>
+        <div className="panelHeader compact"><div><h2>{selected ? "Editar registro" : "Crear registro"}</h2><span>{selected?._id || "Nuevo documento"}</span></div></div>
+        <div className="formGrid">{activeModule.fields.map((field) => <label className={field.type === "json" ? "field wide" : "field"} key={field.name}><span>{field.label}</span>{field.type === "json" ? <textarea value={form[field.name] || ""} onChange={(event) => updateField(field.name, event.target.value)} rows={7} /> : field.type === "checkbox" ? <input checked={Boolean(form[field.name])} onChange={(event) => updateField(field.name, event.target.checked)} type="checkbox" /> : <input required={field.required} type={field.type || "text"} value={form[field.name] ?? ""} onChange={(event) => updateField(field.name, event.target.value)} />}</label>)}</div>
+        <div className="formActions"><button className="secondaryButton" onClick={startCreate} type="button"><X size={18} />Limpiar</button><button className="primaryButton" disabled={saving} type="submit">{saving ? <Loader2 className="spin" size={18} /> : <Save size={18} />}Guardar</button></div>
+      </form>
+    </section>
+  );
+}
+
 export default function App() {
   const [user, setUser] = useState(getStoredUser());
   const availableModules = useMemo(() => {
@@ -221,8 +332,9 @@ export default function App() {
     const allowed = planModules.filter((moduleKey) => roleModules.includes(moduleKey));
     return modules.filter((module) => allowed.includes(module.key));
   }, [user]);
-  const [activeKey, setActiveKey] = useState("clientes");
+  const [activeKey, setActiveKey] = useState("dashboard");
   const isProfile = activeKey === "perfil";
+  const isDashboard = activeKey === "dashboard";
   const [items, setItems] = useState([]);
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState({});
@@ -231,7 +343,7 @@ export default function App() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
 
-  const activeModule = useMemo(() => isProfile ? null : availableModules.find((module) => module.key === activeKey) || availableModules[0], [activeKey, availableModules, isProfile]);
+  const activeModule = useMemo(() => isProfile || isDashboard ? null : availableModules.find((module) => module.key === activeKey) || availableModules[0], [activeKey, availableModules, isProfile, isDashboard]);
   const filteredItems = useMemo(() => {
     const term = query.trim().toLowerCase();
     if (!term) return items;
@@ -241,6 +353,7 @@ export default function App() {
   function logout() {
     clearSession();
     setUser(null);
+    setActiveKey("dashboard");
   }
 
   async function loadItems() {
@@ -266,8 +379,9 @@ export default function App() {
   }, [activeModule?.key, user?.suscripcion?.plan]);
 
   useEffect(() => {
-    if (!isProfile && availableModules.length && !availableModules.some((module) => module.key === activeKey)) {
-      setActiveKey(availableModules[0].key);
+    const fixedViews = ["dashboard", "perfil"];
+    if (!fixedViews.includes(activeKey) && availableModules.length && !availableModules.some((module) => module.key === activeKey)) {
+      setActiveKey("dashboard");
     }
   }, [availableModules, activeKey]);
 
@@ -316,30 +430,34 @@ export default function App() {
     }
   }
 
+  const groupedModules = moduleGroups
+    .map((group) => ({ ...group, modules: availableModules.filter((module) => group.keys.includes(module.key)) }))
+    .filter((group) => group.modules.length > 0);
+  const pageTitle = isDashboard ? "Dashboard" : isProfile ? "Perfil" : activeModule?.title;
+  const pageDescription = isDashboard ? "Resumen del acceso activo, plan, rol y modulos disponibles." : isProfile ? "Datos de usuario IAM y administracion de suscripcion." : activeModule?.description;
+
   return (
     <div className="shell">
       <aside className="sidebar">
         <div className="brand"><div className="brandMark"><Truck size={22} /></div><div><strong>Translogix</strong><span>{user.rol} | {planDefinitions[user.suscripcion.plan]?.title}</span></div></div>
-        <nav className="moduleNav" aria-label="Modulos"><button className={isProfile ? "active" : ""} onClick={() => setActiveKey("perfil")} type="button"><UserRound size={18} /><span>Perfil</span></button>{availableModules.map((module) => <button className={module.key === activeKey ? "active" : ""} key={module.key} onClick={() => setActiveKey(module.key)} type="button"><Boxes size={18} /><span>{module.title}</span></button>)}</nav>
+        <nav className="moduleNav" aria-label="Modulos">
+          <button className={isDashboard ? "active" : ""} onClick={() => setActiveKey("dashboard")} type="button"><Gauge size={18} /><span>Dashboard</span></button>
+          <button className={isProfile ? "active" : ""} onClick={() => setActiveKey("perfil")} type="button"><UserRound size={18} /><span>Perfil</span></button>
+          {groupedModules.map((group) => {
+            const Icon = group.icon;
+            return <div className="navGroup" key={group.title}><div className="navGroupTitle"><Icon size={14} />{group.title}</div>{group.modules.map((module) => <button className={module.key === activeKey ? "active" : ""} key={module.key} onClick={() => setActiveKey(module.key)} type="button"><Boxes size={18} /><span>{module.title}</span></button>)}</div>;
+          })}
+        </nav>
       </aside>
 
       <main className="content">
-        <section className="topbar"><div><p className="eyebrow">{user.nombre}</p><h1>{isProfile ? "Perfil" : activeModule.title}</h1><p>{isProfile ? "Datos de usuario IAM y administracion de suscripcion." : activeModule.description}</p></div><div className="topActions"><div className="statusPill"><Database size={18} /><span>API localhost:3000</span></div><button className="secondaryButton" onClick={logout} type="button"><LogOut size={18} />Salir</button></div></section>
+        <section className="topbar"><div><p className="eyebrow">{user.nombre}</p><h1>{pageTitle}</h1><p>{pageDescription}</p></div><div className="topActions"><div className="statusPill"><Database size={18} /><span>API localhost:3000</span></div><button className="secondaryButton" onClick={logout} type="button"><LogOut size={18} />Salir</button></div></section>
 
-        {isProfile ? <ProfileView user={user} onUserChange={setUser} /> : <section className="workspace">
-          <div className="listPanel">
-            <div className="panelHeader"><div><h2>Registros</h2><span>{filteredItems.length} visibles</span></div><div className="actions"><label className="searchBox"><Search size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar" /></label><button className="iconButton" onClick={loadItems} type="button" title="Actualizar">{loading ? <Loader2 className="spin" size={18} /> : <RefreshCcw size={18} />}</button><button className="primaryButton" onClick={startCreate} type="button"><Plus size={18} />Nuevo</button></div></div>
-            {message && <div className={`notice ${message.type}`}>{message.type === "success" ? <CheckCircle2 size={18} /> : <X size={18} />}<span>{message.text}</span></div>}
-            <div className="tableWrap"><table><thead><tr>{activeModule.columns.map((column) => <th key={column}>{column}</th>)}<th className="tableActions">Acciones</th></tr></thead><tbody>{filteredItems.map((item) => <tr key={item._id} className={selected?._id === item._id ? "selectedRow" : ""}>{activeModule.columns.map((column) => <td key={column}>{formatValue(item[column])}</td>)}<td className="tableActions"><button className="iconButton" onClick={() => startEdit(item)} type="button" title="Editar"><Edit3 size={17} /></button><button className="dangerButton" onClick={() => deleteItem(item)} type="button" title="Eliminar"><Trash2 size={17} /></button></td></tr>)}{!loading && filteredItems.length === 0 && <tr><td className="emptyState" colSpan={activeModule.columns.length + 1}>No hay registros para mostrar.</td></tr>}</tbody></table></div>
-          </div>
-
-          <form className="formPanel" onSubmit={saveItem}>
-            <div className="panelHeader compact"><div><h2>{selected ? "Editar registro" : "Crear registro"}</h2><span>{selected?._id || "Nuevo documento"}</span></div></div>
-            <div className="formGrid">{activeModule.fields.map((field) => <label className={field.type === "json" ? "field wide" : "field"} key={field.name}><span>{field.label}</span>{field.type === "json" ? <textarea value={form[field.name] || ""} onChange={(event) => updateField(field.name, event.target.value)} rows={7} /> : field.type === "checkbox" ? <input checked={Boolean(form[field.name])} onChange={(event) => updateField(field.name, event.target.checked)} type="checkbox" /> : <input required={field.required} type={field.type || "text"} value={form[field.name] ?? ""} onChange={(event) => updateField(field.name, event.target.value)} />}</label>)}</div>
-            <div className="formActions"><button className="secondaryButton" onClick={startCreate} type="button"><X size={18} />Limpiar</button><button className="primaryButton" disabled={saving} type="submit">{saving ? <Loader2 className="spin" size={18} /> : <Save size={18} />}Guardar</button></div>
-          </form>
-        </section>}
+        {isDashboard && <DashboardView user={user} availableModules={availableModules} onOpenModule={setActiveKey} />}
+        {isProfile && <ProfileView user={user} onUserChange={setUser} />}
+        {!isDashboard && !isProfile && activeModule && <ResourceView activeModule={activeModule} filteredItems={filteredItems} query={query} setQuery={setQuery} loading={loading} loadItems={loadItems} startCreate={startCreate} startEdit={startEdit} deleteItem={deleteItem} selected={selected} message={message} form={form} updateField={updateField} saveItem={saveItem} saving={saving} />}
       </main>
     </div>
   );
 }
+
