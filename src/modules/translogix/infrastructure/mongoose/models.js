@@ -294,6 +294,7 @@ export const Comentario = model(
       publicacion_id: { ...objectId, ref: "PublicacionFeed" },
       autor_id: objectId,
       texto: String,
+      reacciones: [reaccionSchema],
     },
     timestamps
   ),

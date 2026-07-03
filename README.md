@@ -519,6 +519,7 @@ Componentes principales:
 | `PlanGate` | Bloquea la entrada si el usuario autenticado aun no tiene plan activo |
 | `DashboardView` | Resume rol, plan, modulos disponibles y grupos funcionales del TMS |
 | `ProfileView` | Muestra datos del usuario y permite cambiar la suscripcion solo desde Perfil |
+| `FeedView` | Muestra publicaciones tipo red social, comentarios y reacciones con emojis |
 | `ResourceView` | Renderiza la pantalla CRUD generica para cada recurso disponible |
 | `Shell` | Organiza sidebar, topbar, navegacion por grupos y cierre de sesion |
 
@@ -546,6 +547,28 @@ Matriz de roles:
 | Administrador | Gestion completa, IAM, configuracion, reportes y operacion total |
 | Operador | Operacion diaria: clientes, flota, rutas, pedidos, despachos e incidencias |
 | Conductor | Trabajo asignado: despachos, GPS, incidencias, notificaciones y comunicacion |
+
+### Feed corporativo y comentarios
+
+El modulo de comunicacion interna funciona como un muro social operativo. La pantalla `FeedView` consume los mismos endpoints REST, pero los presenta como publicaciones con comentarios y reacciones.
+
+| Elemento | Endpoint | Funcion |
+|---|---|---|
+| Publicaciones | `/api/publicaciones_feed` | Crear comunicados, incidencias, evidencias o novedades operativas |
+| Comentarios | `/api/comentarios` | Responder dentro de una publicacion |
+| Reacciones de post | `PATCH /api/publicaciones_feed/:id` | Incrementar el contador del emoji seleccionado |
+| Reacciones de comentario | `PATCH /api/comentarios/:id` | Incrementar el contador del emoji seleccionado |
+
+Cada publicacion y cada comentario guardan reacciones con esta forma:
+
+```json
+[
+  { "emoji": "👍", "cantidad": 3 },
+  { "emoji": "✅", "cantidad": 2 }
+]
+```
+
+Esto permite que la comunicacion del TMS no sea solo CRUD administrativo, sino una experiencia mas cercana a un feed interno de operaciones.
 
 Para validar la capa de presentacion:
 

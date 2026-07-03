@@ -12,6 +12,7 @@ Frontend de Translogix TMS construido con React + Vite. Esta capa representa la 
 | Dashboard | Muestra resumen del rol, plan, modulos habilitados y grupos funcionales |
 | Perfil | Centraliza los datos del usuario y el cambio de suscripcion |
 | CRUD | Permite listar, crear, editar y eliminar registros de los endpoints habilitados |
+| Feed social | Permite publicar, comentar y reaccionar con emojis en la comunicacion interna |
 | Control de acceso | Combina rol + plan para decidir que modulos se muestran |
 
 ## Flujo funcional
@@ -62,8 +63,43 @@ Usuario abre la app
 | `PlanGate` | Pantalla obligatoria para elegir plan cuando el usuario no tiene suscripcion |
 | `DashboardView` | Vista inicial del sistema despues de autenticarse y tener plan |
 | `ProfileView` | Vista de perfil. Muestra usuario, rol, email y selector de plan |
+| `FeedView` | Vista tipo red social para publicaciones, comentarios y reacciones con emojis |
 | `ResourceView` | Vista reutilizable para CRUD de cada modulo habilitado |
 | `Shell` | Layout principal con sidebar, topbar y contenido activo |
+
+## Feed corporativo tipo red social
+
+El modulo `publicaciones_feed` ya no se muestra solo como tabla. En la capa de presentacion se renderiza como un muro interno parecido a Facebook, pero orientado a operacion logistica.
+
+| Accion | Que hace |
+|---|---|
+| Publicar | Crea un documento en `/api/publicaciones_feed` con autor, contenido, estado y reacciones |
+| Comentar | Crea un documento en `/api/comentarios` asociado a la publicacion |
+| Reaccionar a post | Actualiza el arreglo `reacciones` de la publicacion con `PATCH` |
+| Reaccionar a comentario | Actualiza el arreglo `reacciones` del comentario con `PATCH` |
+| Ver historial | Carga publicaciones y luego consulta comentarios por `publicacion_id` |
+
+Estructura logica:
+
+```text
+Publicacion
+  -> contenido
+  -> multimedia
+  -> reacciones: [{ emoji, cantidad }]
+  -> comentarios
+
+Comentario
+  -> publicacion_id
+  -> autor_id
+  -> texto
+  -> reacciones: [{ emoji, cantidad }]
+```
+
+Los emojis disponibles en la interfaz son:
+
+```text
+👍 ❤️ 😂 😮 🚚 ✅
+```
 
 ## Como se conecta con backend
 

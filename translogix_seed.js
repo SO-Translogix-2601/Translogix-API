@@ -316,11 +316,11 @@ db.notificaciones.insertMany([
 ].map((n, i) => ({ usuario_id: n[0], tipo: n[1], mensaje: n[2], referencia_id: n[3], referencia_tipo: n[4], leida: n[5], createdAt: new Date(`2026-06-${String(12 + i).padStart(2, "0")}T08:30:00Z`) })));
 
 db.publicaciones_feed.insertMany([
-  { _id: postIds[0], autor_id: drivers.luis, referencia_despacho: despachoIds[0], tipo_publicacion: "incidencia_multimedia", contenido: "Trafico detenido en Tomas Valle. Estoy desviando por via alterna indicada por operaciones.", multimedia: [{ tipo: "imagen", url: "https://translogix.local/media/trafico_tomas_valle.jpg", size_mb: 2.4 }], reacciones: [{ emoji: "alerta", cantidad: 3 }, { emoji: "visto", cantidad: 5 }], estado: "publicado", createdAt: new Date("2026-06-12T08:42:00Z") },
-  { _id: postIds[1], autor_id: drivers.maria, referencia_despacho: despachoIds[1], tipo_publicacion: "reprogramacion", contenido: "Cliente no disponible en recepcion. Operaciones ya coordina nueva ventana de entrega.", multimedia: [], reacciones: [{ emoji: "ok", cantidad: 4 }], estado: "publicado", createdAt: new Date("2026-06-12T09:15:00Z") },
-  { _id: postIds[2], autor_id: users.ana, referencia_despacho: despachoIds[4], tipo_publicacion: "operacion", contenido: "Despacho refrigerado en ruta. Monitorear temperatura cada 20 minutos.", multimedia: [], reacciones: [{ emoji: "seguimiento", cantidad: 2 }], estado: "publicado", createdAt: new Date("2026-06-13T07:00:00Z") },
-  { _id: postIds[3], autor_id: drivers.diego, referencia_despacho: despachoIds[2], tipo_publicacion: "documentacion", contenido: "Guia fisica pendiente de firma. Cliente solicita validacion por correo.", multimedia: [{ tipo: "imagen", url: "https://translogix.local/media/guia_pendiente.jpg", size_mb: 1.1 }], reacciones: [{ emoji: "revision", cantidad: 2 }], estado: "publicado", createdAt: new Date("2026-06-13T10:22:00Z") },
-  { _id: postIds[4], autor_id: users.valeria, referencia_despacho: null, tipo_publicacion: "comunicado", contenido: "Recordatorio: todos los conductores deben confirmar inicio y cierre de ruta desde la app.", multimedia: [], reacciones: [{ emoji: "ok", cantidad: 8 }], estado: "publicado", createdAt: new Date("2026-06-16T08:00:00Z") },
+  { _id: postIds[0], autor_id: drivers.luis, referencia_despacho: despachoIds[0], tipo_publicacion: "incidencia_multimedia", contenido: "Trafico detenido en Tomas Valle. Estoy desviando por via alterna indicada por operaciones.", multimedia: [{ tipo: "imagen", url: "https://translogix.local/media/trafico_tomas_valle.jpg", size_mb: 2.4 }], reacciones: [{ emoji: "😮", cantidad: 3 }, { emoji: "✅", cantidad: 5 }], estado: "publicado", createdAt: new Date("2026-06-12T08:42:00Z") },
+  { _id: postIds[1], autor_id: drivers.maria, referencia_despacho: despachoIds[1], tipo_publicacion: "reprogramacion", contenido: "Cliente no disponible en recepcion. Operaciones ya coordina nueva ventana de entrega.", multimedia: [], reacciones: [{ emoji: "👍", cantidad: 4 }], estado: "publicado", createdAt: new Date("2026-06-12T09:15:00Z") },
+  { _id: postIds[2], autor_id: users.ana, referencia_despacho: despachoIds[4], tipo_publicacion: "operacion", contenido: "Despacho refrigerado en ruta. Monitorear temperatura cada 20 minutos.", multimedia: [], reacciones: [{ emoji: "🚚", cantidad: 2 }], estado: "publicado", createdAt: new Date("2026-06-13T07:00:00Z") },
+  { _id: postIds[3], autor_id: drivers.diego, referencia_despacho: despachoIds[2], tipo_publicacion: "documentacion", contenido: "Guia fisica pendiente de firma. Cliente solicita validacion por correo.", multimedia: [{ tipo: "imagen", url: "https://translogix.local/media/guia_pendiente.jpg", size_mb: 1.1 }], reacciones: [{ emoji: "❤️", cantidad: 2 }], estado: "publicado", createdAt: new Date("2026-06-13T10:22:00Z") },
+  { _id: postIds[4], autor_id: users.valeria, referencia_despacho: null, tipo_publicacion: "comunicado", contenido: "Recordatorio: todos los conductores deben confirmar inicio y cierre de ruta desde la app.", multimedia: [], reacciones: [{ emoji: "✅", cantidad: 8 }], estado: "publicado", createdAt: new Date("2026-06-16T08:00:00Z") },
 ]);
 
 db.comentarios.insertMany([
@@ -332,7 +332,7 @@ db.comentarios.insertMany([
   [postIds[3], users.paula, "Enviaremos validacion digital al cliente."],
   [postIds[4], drivers.diego, "Confirmado, se usara check-in y check-out."],
   [postIds[4], drivers.rosa, "Recibido."],
-].map((c, i) => ({ publicacion_id: c[0], autor_id: c[1], texto: c[2], createdAt: new Date(`2026-06-16T08:${String(10 + i).padStart(2, "0")}:00Z`) })));
+].map((c, i) => ({ publicacion_id: c[0], autor_id: c[1], texto: c[2], reacciones: [{ emoji: i % 2 === 0 ? "👍" : "✅", cantidad: 1 + (i % 3) }], createdAt: new Date(`2026-06-16T08:${String(10 + i).padStart(2, "0")}:00Z`) })));
 
 db.usuarios.createIndex({ email: 1 }, { unique: true });
 db.usuarios.createIndex({ rol_id: 1 });

@@ -17,6 +17,9 @@ import {
   Search,
   ShieldCheck,
   Trash2,
+  Image,
+  Send,
+  SmilePlus,
   Truck,
   UserPlus,
   UserRound,
@@ -68,6 +71,15 @@ const moduleGroups = [
   { title: "Comunicacion", icon: MessageSquareText, keys: ["publicaciones_feed", "comentarios"] },
 ];
 
+const reactionOptions = [
+  { emoji: "👍", label: "Me gusta" },
+  { emoji: "❤️", label: "Importante" },
+  { emoji: "😂", label: "Ligero" },
+  { emoji: "😮", label: "Atencion" },
+  { emoji: "🚚", label: "En ruta" },
+  { emoji: "✅", label: "Resuelto" },
+];
+
 const formatValue = (value) => {
   if (value === null || value === undefined || value === "") return "-";
   if (typeof value === "boolean") return value ? "Si" : "No";
@@ -75,6 +87,26 @@ const formatValue = (value) => {
   if (typeof value === "object") return JSON.stringify(value);
   return String(value);
 };
+
+function addReaction(reactions = [], emoji) {
+  const current = Array.isArray(reactions) ? reactions : [];
+  const exists = current.find((reaction) => reaction.emoji === emoji);
+  if (exists) {
+    return current.map((reaction) => reaction.emoji === emoji ? { ...reaction, cantidad: Number(reaction.cantidad || 0) + 1 } : reaction);
+  }
+  return [...current, { emoji, cantidad: 1 }];
+}
+
+function renderReactionSummary(reactions = []) {
+  const current = Array.isArray(reactions) ? reactions : [];
+  if (!current.length) return "Sin reacciones";
+  return current.map((reaction) => `${reaction.emoji} ${reaction.cantidad || 0}`).join("  ");
+}
+
+function formatDate(value) {
+  if (!value) return "Ahora";
+  return new Date(value).toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" });
+}
 
 function normalizePayload(module, form) {
   const payload = {};
@@ -305,6 +337,185 @@ function ProfileView({ user, onUserChange }) {
   );
 }
 
+function FeedView({ user }) {
+  const [posts, setPosts] = useState([]);
+  const [commentsByPost, setCommentsByPost] = useState({});
+  const [postDraft, setPostDraft] = useState("");
+  const [commentDrafts, setCommentDrafts] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState(null);
+  const userId = user.id || user._id;
+
+  async function loadFeed() {
+    setLoading(true);
+    setMessage(null);
+    try {
+      const postsResponse = await apiRequest("/publicaciones_feed?limit=30&sort=-createdAt");
+      const loadedPosts = postsResponse.data || [];
+      setPosts(loadedPosts);
+      const commentEntries = await Promise.all(
+        loadedPosts.map(async (post) => {
+          const response = await apiRequest(`/comentarios?publicacion_id=${encodeURIComponent(post._id)}&limit=100&sort=createdAt`);
+          return [post._id, response.data || []];
+        })
+      );
+      setCommentsByPost(Object.fromEntries(commentEntries));
+    } catch (error) {
+      setMessage({ type: "error", text: error.message });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadFeed();
+  }, []);
+
+  async function createPost(event) {
+    event.preventDefault();
+    const content = postDraft.trim();
+    if (!content) return;
+    setSaving(true);
+    setMessage(null);
+    try {
+      await apiRequest("/publicaciones_feed", {
+        method: "POST",
+        body: JSON.stringify({
+          autor_id: userId,
+          tipo_publicacion: "comunicado",
+          contenido: content,
+          multimedia: [],
+          reacciones: [],
+          estado: "publicado",
+        }),
+      });
+      setPostDraft("");
+      await loadFeed();
+    } catch (error) {
+      setMessage({ type: "error", text: error.message });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function createComment(postId) {
+    const content = (commentDrafts[postId] || "").trim();
+    if (!content) return;
+    setSaving(true);
+    setMessage(null);
+    try {
+      await apiRequest("/comentarios", {
+        method: "POST",
+        body: JSON.stringify({
+          publicacion_id: postId,
+          autor_id: userId,
+          texto: content,
+          reacciones: [],
+        }),
+      });
+      setCommentDrafts((current) => ({ ...current, [postId]: "" }));
+      await loadFeed();
+    } catch (error) {
+      setMessage({ type: "error", text: error.message });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function reactToPost(post, emoji) {
+    const reacciones = addReaction(post.reacciones, emoji);
+    setPosts((current) => current.map((item) => item._id === post._id ? { ...item, reacciones } : item));
+    try {
+      await apiRequest(`/publicaciones_feed/${post._id}`, { method: "PATCH", body: JSON.stringify({ reacciones }) });
+    } catch (error) {
+      setMessage({ type: "error", text: error.message });
+      await loadFeed();
+    }
+  }
+
+  async function reactToComment(postId, comment, emoji) {
+    const reacciones = addReaction(comment.reacciones, emoji);
+    setCommentsByPost((current) => ({
+      ...current,
+      [postId]: (current[postId] || []).map((item) => item._id === comment._id ? { ...item, reacciones } : item),
+    }));
+    try {
+      await apiRequest(`/comentarios/${comment._id}`, { method: "PATCH", body: JSON.stringify({ reacciones }) });
+    } catch (error) {
+      setMessage({ type: "error", text: error.message });
+      await loadFeed();
+    }
+  }
+
+  function authorLabel(authorId) {
+    return String(authorId) === String(userId) ? user.nombre : `Usuario ${String(authorId || "").slice(-6)}`;
+  }
+
+  return (
+    <section className="feedPage">
+      <form className="composer" onSubmit={createPost}>
+        <div className="avatar">{user.nombre?.slice(0, 1) || "T"}</div>
+        <label className="composerBox">
+          <span>Publicar en el feed operativo</span>
+          <textarea value={postDraft} onChange={(event) => setPostDraft(event.target.value)} placeholder="Comparte una novedad, incidencia, evidencia o comunicado..." rows={3} />
+        </label>
+        <div className="composerActions">
+          <button className="secondaryButton" type="button"><Image size={18} />Multimedia</button>
+          <button className="primaryButton" disabled={saving || !postDraft.trim()} type="submit">{saving ? <Loader2 className="spin" size={18} /> : <Send size={18} />}Publicar</button>
+        </div>
+      </form>
+
+      {message && <div className={`notice ${message.type}`}>{message.type === "success" ? <CheckCircle2 size={18} /> : <X size={18} />}<span>{message.text}</span></div>}
+      {loading && <div className="feedLoading"><Loader2 className="spin" size={18} />Cargando feed...</div>}
+
+      <div className="feedList">
+        {posts.map((post) => (
+          <article className="postCard" key={post._id}>
+            <header className="postHeader">
+              <div className="avatar small">{authorLabel(post.autor_id).slice(0, 1)}</div>
+              <div>
+                <strong>{authorLabel(post.autor_id)}</strong>
+                <span>{post.tipo_publicacion || "publicacion"} | {formatDate(post.createdAt)}</span>
+              </div>
+            </header>
+            <p className="postContent">{post.contenido}</p>
+            {Array.isArray(post.multimedia) && post.multimedia.length > 0 && (
+              <div className="mediaList">{post.multimedia.map((media, index) => <span key={`${media.url}-${index}`}><Image size={16} />{media.tipo}: {media.url}</span>)}</div>
+            )}
+            <div className="reactionSummary">{renderReactionSummary(post.reacciones)}</div>
+            <div className="reactionBar" aria-label="Reacciones de publicacion">
+              {reactionOptions.map((reaction) => <button key={reaction.emoji} onClick={() => reactToPost(post, reaction.emoji)} title={reaction.label} type="button">{reaction.emoji}</button>)}
+            </div>
+
+            <section className="commentsBlock">
+              {(commentsByPost[post._id] || []).map((comment) => (
+                <div className="commentItem" key={comment._id}>
+                  <div className="avatar mini">{authorLabel(comment.autor_id).slice(0, 1)}</div>
+                  <div className="commentBubble">
+                    <strong>{authorLabel(comment.autor_id)}</strong>
+                    <p>{comment.texto}</p>
+                    <div className="commentMeta"><span>{formatDate(comment.createdAt)}</span><span>{renderReactionSummary(comment.reacciones)}</span></div>
+                    <div className="miniReactionBar" aria-label="Reacciones de comentario">
+                      {reactionOptions.slice(0, 4).map((reaction) => <button key={reaction.emoji} onClick={() => reactToComment(post._id, comment, reaction.emoji)} title={reaction.label} type="button">{reaction.emoji}</button>)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <div className="commentComposer">
+                <div className="avatar mini">{user.nombre?.slice(0, 1) || "T"}</div>
+                <input value={commentDrafts[post._id] || ""} onChange={(event) => setCommentDrafts((current) => ({ ...current, [post._id]: event.target.value }))} onKeyDown={(event) => { if (event.key === "Enter") createComment(post._id); }} placeholder="Escribe un comentario..." />
+                <button className="iconButton" onClick={() => createComment(post._id)} disabled={saving || !(commentDrafts[post._id] || "").trim()} type="button" title="Comentar"><Send size={16} /></button>
+              </div>
+            </section>
+          </article>
+        ))}
+        {!loading && posts.length === 0 && <div className="emptyFeed"><SmilePlus size={22} />Todavia no hay publicaciones.</div>}
+      </div>
+    </section>
+  );
+}
+
 function ResourceView({ activeModule, filteredItems, query, setQuery, loading, loadItems, startCreate, startEdit, deleteItem, selected, message, form, updateField, saveItem, saving }) {
   return (
     <section className="workspace">
@@ -335,6 +546,7 @@ export default function App() {
   const [activeKey, setActiveKey] = useState("dashboard");
   const isProfile = activeKey === "perfil";
   const isDashboard = activeKey === "dashboard";
+  const isFeed = activeKey === "publicaciones_feed";
   const [items, setItems] = useState([]);
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState({});
@@ -343,7 +555,7 @@ export default function App() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
 
-  const activeModule = useMemo(() => isProfile || isDashboard ? null : availableModules.find((module) => module.key === activeKey) || availableModules[0], [activeKey, availableModules, isProfile, isDashboard]);
+  const activeModule = useMemo(() => isProfile || isDashboard || isFeed ? null : availableModules.find((module) => module.key === activeKey) || availableModules[0], [activeKey, availableModules, isProfile, isDashboard, isFeed]);
   const filteredItems = useMemo(() => {
     const term = query.trim().toLowerCase();
     if (!term) return items;
@@ -433,8 +645,8 @@ export default function App() {
   const groupedModules = moduleGroups
     .map((group) => ({ ...group, modules: availableModules.filter((module) => group.keys.includes(module.key)) }))
     .filter((group) => group.modules.length > 0);
-  const pageTitle = isDashboard ? "Dashboard" : isProfile ? "Perfil" : activeModule?.title;
-  const pageDescription = isDashboard ? "Resumen del acceso activo, plan, rol y modulos disponibles." : isProfile ? "Datos de usuario IAM y administracion de suscripcion." : activeModule?.description;
+  const pageTitle = isDashboard ? "Dashboard" : isProfile ? "Perfil" : isFeed ? "Feed corporativo" : activeModule?.title;
+  const pageDescription = isDashboard ? "Resumen del acceso activo, plan, rol y modulos disponibles." : isProfile ? "Datos de usuario IAM y administracion de suscripcion." : isFeed ? "Publicaciones, comentarios y reacciones internas del equipo logistico." : activeModule?.description;
 
   return (
     <div className="shell">
@@ -455,7 +667,8 @@ export default function App() {
 
         {isDashboard && <DashboardView user={user} availableModules={availableModules} onOpenModule={setActiveKey} />}
         {isProfile && <ProfileView user={user} onUserChange={setUser} />}
-        {!isDashboard && !isProfile && activeModule && <ResourceView activeModule={activeModule} filteredItems={filteredItems} query={query} setQuery={setQuery} loading={loading} loadItems={loadItems} startCreate={startCreate} startEdit={startEdit} deleteItem={deleteItem} selected={selected} message={message} form={form} updateField={updateField} saveItem={saveItem} saving={saving} />}
+        {isFeed && <FeedView user={user} />}
+        {!isDashboard && !isProfile && !isFeed && activeModule && <ResourceView activeModule={activeModule} filteredItems={filteredItems} query={query} setQuery={setQuery} loading={loading} loadItems={loadItems} startCreate={startCreate} startEdit={startEdit} deleteItem={deleteItem} selected={selected} message={message} form={form} updateField={updateField} saveItem={saveItem} saving={saving} />}
       </main>
     </div>
   );
