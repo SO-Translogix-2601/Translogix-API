@@ -1,0 +1,230 @@
+{
+  "common": {
+    "search": "Buscar",
+    "refresh": "Actualizar",
+    "new": "Nuevo",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "logout": "Salir",
+    "records": "Registros",
+    "visible": "{{count}} visibles",
+    "noRecords": "No hay registros para mostrar.",
+    "actions": "Acciones",
+    "apiOnline": "API localhost:3000",
+    "confirmation": "Confirmacion",
+    "deleteRecordTitle": "Eliminar registro",
+    "deleteRecordBody": "Esta accion eliminara <0>{{target}}</0>. Confirma solo si estas seguro.",
+    "thisRecord": "este registro",
+    "editRecord": "Editar registro",
+    "createRecord": "Crear registro",
+    "recordUpdated": "Registro actualizado correctamente.",
+    "recordCreated": "Registro creado correctamente.",
+    "recordDeleted": "Registro eliminado.",
+    "language": "Idioma",
+    "genericError": "No se pudo completar la solicitud"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "profile": "Perfil",
+    "modulesAriaLabel": "Modulos"
+  },
+  "auth": {
+    "brand": "Translogix TMS",
+    "tagline": "Ultima milla con arquitectura de tres capas",
+    "heroTitle": "Gestion logistica con IAM, suscripciones y trazabilidad operativa.",
+    "heroBody": "La aplicacion separa presentacion, aplicacion y datos para sostener crecimiento, integridad de informacion y monitoreo operativo.",
+    "layerPresentation": "Presentacion",
+    "layerApplication": "Aplicacion",
+    "layerData": "Datos",
+    "iam": "IAM",
+    "login": "Iniciar sesion",
+    "register": "Crear cuenta",
+    "name": "Nombre",
+    "phone": "Telefono",
+    "role": "Rol",
+    "email": "Email",
+    "emailPlaceholder": "example@gmail.com",
+    "password": "Password",
+    "passwordPlaceholder": "Minimo 6 caracteres",
+    "submitLogin": "Ingresar",
+    "submitRegister": "Crear cuenta"
+  },
+  "planGate": {
+    "subtitleBrand": "Suscripcion requerida",
+    "title": "Elige el alcance inicial de tu cuenta",
+    "body": "{{name}}, tu rol es {{role}}. El dashboard se desbloquea cruzando rol y plan.",
+    "choosePlan": "Elegir {{plan}}"
+  },
+  "dashboard": {
+    "role": "Rol",
+    "plan": "Plan",
+    "activeModules": "Modulos activos",
+    "api": "API",
+    "online": "Online",
+    "currentFlow": "Flujo actual",
+    "flowBody": "El acceso visible se calcula con la interseccion entre el rol IAM y la suscripcion activa. Premium no reemplaza permisos de rol; solo amplia capacidades disponibles.",
+    "operation": "Operacion",
+    "pageDescription": "Resumen del acceso activo, plan, rol y modulos disponibles."
+  },
+  "profile": {
+    "iamProfile": "Perfil IAM",
+    "role": "Rol",
+    "scope": "Alcance",
+    "noScope": "Sin alcance definido",
+    "phone": "Telefono",
+    "notRegistered": "No registrado",
+    "currentPlan": "Plan actual",
+    "noPlan": "Sin plan",
+    "status": "Estado",
+    "pending": "Pendiente",
+    "subscription": "Suscripcion",
+    "changePlan": "Cambiar plan",
+    "changePlanBody": "La suscripcion se administra desde el perfil. El rol IAM sigue limitando los modulos aunque se elija Premium.",
+    "pageDescription": "Datos de usuario IAM y administracion de suscripcion."
+  },
+  "feed": {
+    "title": "Feed corporativo",
+    "pageDescription": "Publicaciones, comentarios y reacciones internas del equipo logistico.",
+    "composerLabel": "Publicar en el feed operativo",
+    "composerPlaceholder": "Comparte una novedad, incidencia, evidencia o comunicado...",
+    "image": "Imagen",
+    "removeImage": "Quitar imagen",
+    "publish": "Publicar",
+    "loading": "Cargando feed...",
+    "empty": "Todavia no hay publicaciones.",
+    "commentPlaceholder": "Escribe un comentario...",
+    "commentAction": "Comentar",
+    "deleteComment": "Eliminar",
+    "confirmDeleteComment": "Eliminar tu comentario?",
+    "noReactions": "Sin reacciones",
+    "postReactionsLabel": "Reacciones de publicacion",
+    "commentReactionsLabel": "Reacciones de comentario",
+    "team": "Equipo Translogix",
+    "post": "publicacion",
+    "imageUploadError": "Solo puedes subir imagenes.",
+    "reactions": {
+      "like": "Me gusta",
+      "important": "Importante",
+      "light": "Ligero",
+      "attention": "Atencion",
+      "onRoute": "En ruta",
+      "resolved": "Resuelto"
+    }
+  },
+  "roles": {
+    "Administrador": { "title": "Administrador", "description": "Gestion completa del TMS, IAM, reportes y configuracion." },
+    "Operador": { "title": "Operador", "description": "Gestion operativa de clientes, rutas, pedidos, despachos e incidencias." },
+    "Conductor": { "title": "Conductor", "description": "Consulta de despachos asignados, GPS, incidencias y comunicacion interna." }
+  },
+  "plans": {
+    "plus": {
+      "title": "Plus",
+      "subtitle": "Operacion logistica esencial",
+      "description": "Control de clientes, flota, rutas, pedidos y despachos de ultima milla.",
+      "features": ["CRUD logistico operativo", "Monitoreo GPS", "Gestion de incidencias", "Notificaciones internas"]
+    },
+    "premium": {
+      "title": "Premium",
+      "subtitle": "Arquitectura completa para crecimiento",
+      "description": "Incluye todo Plus mas IAM administrativo, mantenimiento, reportes y comunicacion interna.",
+      "features": ["Todos los modulos", "Usuarios y roles", "Reportes avanzados", "Mantenimientos", "Feed y comentarios"]
+    }
+  },
+  "moduleGroups": {
+    "iam": "IAM",
+    "operacion": "Operacion",
+    "monitoreo": "Monitoreo",
+    "gestion": "Gestion",
+    "comunicacion": "Comunicacion"
+  },
+  "modules": {
+    "roles": {
+      "title": "Roles",
+      "description": "Perfiles y permisos del sistema.",
+      "fields": { "nombre": "Nombre", "descripcion": "Descripcion", "permisos": "Permisos" }
+    },
+    "usuarios": {
+      "title": "Usuarios",
+      "description": "Accesos del equipo Translogix.",
+      "fields": { "nombre": "Nombre", "email": "Email", "telefono": "Telefono", "activo": "Activo" }
+    },
+    "conductores": {
+      "title": "Conductores",
+      "description": "Personal encargado de realizar entregas.",
+      "fields": { "nombre_completo": "Nombre completo", "dni": "DNI", "licencia_conducir": "Licencia", "categoria_licencia": "Categoria", "telefono": "Telefono", "estado": "Estado" }
+    },
+    "vehiculos": {
+      "title": "Vehiculos",
+      "description": "Control operativo de unidades de transporte.",
+      "fields": { "placa": "Placa", "marca": "Marca", "modelo": "Modelo", "anio": "Anio", "tipo": "Tipo", "capacidad_kg": "Capacidad kg", "capacidad_m3": "Capacidad m3", "estado": "Estado", "kilometraje": "Kilometraje" }
+    },
+    "clientes": {
+      "title": "Clientes",
+      "description": "Empresas y contactos de entrega.",
+      "fields": { "razon_social": "Razon social", "ruc": "RUC", "contacto": "Contacto", "telefono": "Telefono", "email": "Email", "activo": "Activo", "direccion": "Direccion" }
+    },
+    "zonas": {
+      "title": "Zonas",
+      "description": "Zonas geograficas de operacion.",
+      "fields": { "nombre": "Nombre", "distritos": "Distritos", "activa": "Activa" }
+    },
+    "rutas": {
+      "title": "Rutas",
+      "description": "Rutas y puntos de parada.",
+      "fields": { "nombre": "Nombre", "puntos_parada": "Puntos de parada", "distancia_km": "Distancia km", "tiempo_estimado_min": "Tiempo min", "activa": "Activa" }
+    },
+    "pedidos": {
+      "title": "Pedidos",
+      "description": "Cargas solicitadas por clientes.",
+      "fields": { "codigo": "Codigo", "descripcion": "Descripcion", "peso_kg": "Peso kg", "volumen_m3": "Volumen m3", "direccion_entrega": "Direccion entrega", "fecha_solicitud": "Fecha solicitud", "fecha_entrega_estimada": "Entrega estimada", "estado": "Estado", "prioridad": "Prioridad", "observaciones": "Observaciones" }
+    },
+    "despachos": {
+      "title": "Despachos",
+      "description": "Asignacion de rutas, vehiculos y conductores.",
+      "fields": { "codigo": "Codigo", "fecha_salida": "Fecha salida", "fecha_llegada_estimada": "Llegada estimada", "fecha_llegada_real": "Llegada real", "estado": "Estado" }
+    },
+    "seguimiento_gps": {
+      "title": "Seguimiento GPS",
+      "description": "Ubicacion y velocidad de vehiculos.",
+      "fields": { "coordenadas": "Coordenadas", "velocidad_kmh": "Velocidad km/h", "timestamp": "Timestamp" }
+    },
+    "incidencias": {
+      "title": "Incidencias",
+      "description": "Eventos reportados durante operacion.",
+      "fields": { "tipo": "Tipo", "descripcion": "Descripcion", "coordenadas": "Coordenadas", "estado": "Estado", "fecha_reporte": "Fecha reporte", "fecha_resolucion": "Fecha resolucion" }
+    },
+    "mantenimientos": {
+      "title": "Mantenimientos",
+      "description": "Historial de mantenimiento vehicular.",
+      "fields": { "tipo": "Tipo", "descripcion": "Descripcion", "costo_soles": "Costo soles", "taller": "Taller", "fecha_entrada": "Fecha entrada", "fecha_salida": "Fecha salida", "km_al_mantenimiento": "Km mantenimiento", "proximo_mantenimiento_km": "Proximo km" }
+    },
+    "reportes": {
+      "title": "Reportes",
+      "description": "Resumenes operativos.",
+      "fields": { "tipo": "Tipo", "fecha": "Fecha", "resumen": "Resumen" }
+    },
+    "notificaciones": {
+      "title": "Notificaciones",
+      "description": "Alertas para usuarios.",
+      "fields": { "tipo": "Tipo", "mensaje": "Mensaje", "referencia_tipo": "Referencia tipo", "leida": "Leida" }
+    },
+    "publicaciones_feed": {
+      "title": "Feed",
+      "description": "Publicaciones internas con multimedia.",
+      "fields": { "tipo_publicacion": "Tipo", "contenido": "Contenido", "multimedia": "Multimedia", "estado": "Estado" }
+    },
+    "comentarios": {
+      "title": "Comentarios",
+      "description": "Comentarios del feed corporativo con reacciones.",
+      "fields": { "texto": "Texto" }
+    },
+    "suscripciones": {
+      "title": "Suscripciones",
+      "description": "Planes Plus y Premium seleccionados por usuarios.",
+      "fields": { "plan": "Plan plus/premium", "estado": "Estado", "fecha_inicio": "Fecha inicio", "fecha_fin": "Fecha fin", "caracteristicas": "Caracteristicas" }
+    }
+  }
+}

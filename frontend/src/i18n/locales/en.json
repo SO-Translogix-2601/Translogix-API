@@ -1,0 +1,230 @@
+{
+  "common": {
+    "search": "Search",
+    "refresh": "Refresh",
+    "new": "New",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "logout": "Log out",
+    "records": "Records",
+    "visible": "{{count}} visible",
+    "noRecords": "No records to show.",
+    "actions": "Actions",
+    "apiOnline": "API localhost:3000",
+    "confirmation": "Confirmation",
+    "deleteRecordTitle": "Delete record",
+    "deleteRecordBody": "This action will delete <0>{{target}}</0>. Confirm only if you are sure.",
+    "thisRecord": "this record",
+    "editRecord": "Edit record",
+    "createRecord": "Create record",
+    "recordUpdated": "Record updated successfully.",
+    "recordCreated": "Record created successfully.",
+    "recordDeleted": "Record deleted.",
+    "language": "Language",
+    "genericError": "The request could not be completed"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "modulesAriaLabel": "Modules"
+  },
+  "auth": {
+    "brand": "Translogix TMS",
+    "tagline": "Last-mile logistics on a three-layer architecture",
+    "heroTitle": "Logistics management with IAM, subscriptions and operational traceability.",
+    "heroBody": "The application separates presentation, application and data layers to sustain growth, information integrity and operational monitoring.",
+    "layerPresentation": "Presentation",
+    "layerApplication": "Application",
+    "layerData": "Data",
+    "iam": "IAM",
+    "login": "Sign in",
+    "register": "Create account",
+    "name": "Name",
+    "phone": "Phone",
+    "role": "Role",
+    "email": "Email",
+    "emailPlaceholder": "example@gmail.com",
+    "password": "Password",
+    "passwordPlaceholder": "6 characters minimum",
+    "submitLogin": "Sign in",
+    "submitRegister": "Create account"
+  },
+  "planGate": {
+    "subtitleBrand": "Subscription required",
+    "title": "Choose the initial scope for your account",
+    "body": "{{name}}, your role is {{role}}. The dashboard unlocks by crossing role and plan.",
+    "choosePlan": "Choose {{plan}}"
+  },
+  "dashboard": {
+    "role": "Role",
+    "plan": "Plan",
+    "activeModules": "Active modules",
+    "api": "API",
+    "online": "Online",
+    "currentFlow": "Current flow",
+    "flowBody": "Visible access is calculated by intersecting the IAM role with the active subscription. Premium doesn't replace role permissions; it only expands available capabilities.",
+    "operation": "Operation",
+    "pageDescription": "Summary of the active access, plan, role and available modules."
+  },
+  "profile": {
+    "iamProfile": "IAM Profile",
+    "role": "Role",
+    "scope": "Scope",
+    "noScope": "No scope defined",
+    "phone": "Phone",
+    "notRegistered": "Not registered",
+    "currentPlan": "Current plan",
+    "noPlan": "No plan",
+    "status": "Status",
+    "pending": "Pending",
+    "subscription": "Subscription",
+    "changePlan": "Change plan",
+    "changePlanBody": "The subscription is managed from the profile. The IAM role still limits the modules even if Premium is chosen.",
+    "pageDescription": "IAM user data and subscription management."
+  },
+  "feed": {
+    "title": "Corporate feed",
+    "pageDescription": "Posts, comments and internal reactions from the logistics team.",
+    "composerLabel": "Post to the operations feed",
+    "composerPlaceholder": "Share an update, incident, evidence or announcement...",
+    "image": "Image",
+    "removeImage": "Remove image",
+    "publish": "Publish",
+    "loading": "Loading feed...",
+    "empty": "No posts yet.",
+    "commentPlaceholder": "Write a comment...",
+    "commentAction": "Comment",
+    "deleteComment": "Delete",
+    "confirmDeleteComment": "Delete your comment?",
+    "noReactions": "No reactions",
+    "postReactionsLabel": "Post reactions",
+    "commentReactionsLabel": "Comment reactions",
+    "team": "Translogix Team",
+    "post": "post",
+    "imageUploadError": "You can only upload images.",
+    "reactions": {
+      "like": "Like",
+      "important": "Important",
+      "light": "Light",
+      "attention": "Attention",
+      "onRoute": "On route",
+      "resolved": "Resolved"
+    }
+  },
+  "roles": {
+    "Administrador": { "title": "Administrator", "description": "Full management of the TMS, IAM, reports and configuration." },
+    "Operador": { "title": "Operator", "description": "Operational management of customers, routes, orders, dispatches and incidents." },
+    "Conductor": { "title": "Driver", "description": "View assigned dispatches, GPS, incidents and internal communication." }
+  },
+  "plans": {
+    "plus": {
+      "title": "Plus",
+      "subtitle": "Essential logistics operation",
+      "description": "Control of customers, fleet, routes, orders and last-mile dispatches.",
+      "features": ["Operational logistics CRUD", "GPS monitoring", "Incident management", "Internal notifications"]
+    },
+    "premium": {
+      "title": "Premium",
+      "subtitle": "Full architecture for growth",
+      "description": "Includes everything in Plus plus administrative IAM, maintenance, reports and internal communication.",
+      "features": ["All modules", "Users and roles", "Advanced reports", "Maintenance", "Feed and comments"]
+    }
+  },
+  "moduleGroups": {
+    "iam": "IAM",
+    "operacion": "Operations",
+    "monitoreo": "Monitoring",
+    "gestion": "Management",
+    "comunicacion": "Communication"
+  },
+  "modules": {
+    "roles": {
+      "title": "Roles",
+      "description": "System profiles and permissions.",
+      "fields": { "nombre": "Name", "descripcion": "Description", "permisos": "Permissions" }
+    },
+    "usuarios": {
+      "title": "Users",
+      "description": "Translogix team access accounts.",
+      "fields": { "nombre": "Name", "email": "Email", "telefono": "Phone", "activo": "Active" }
+    },
+    "conductores": {
+      "title": "Drivers",
+      "description": "Staff in charge of making deliveries.",
+      "fields": { "nombre_completo": "Full name", "dni": "National ID", "licencia_conducir": "License", "categoria_licencia": "Category", "telefono": "Phone", "estado": "Status" }
+    },
+    "vehiculos": {
+      "title": "Vehicles",
+      "description": "Operational control of transport units.",
+      "fields": { "placa": "Plate", "marca": "Brand", "modelo": "Model", "anio": "Year", "tipo": "Type", "capacidad_kg": "Capacity kg", "capacidad_m3": "Capacity m3", "estado": "Status", "kilometraje": "Mileage" }
+    },
+    "clientes": {
+      "title": "Customers",
+      "description": "Companies and delivery contacts.",
+      "fields": { "razon_social": "Company name", "ruc": "Tax ID", "contacto": "Contact", "telefono": "Phone", "email": "Email", "activo": "Active", "direccion": "Address" }
+    },
+    "zonas": {
+      "title": "Zones",
+      "description": "Geographic operating zones.",
+      "fields": { "nombre": "Name", "distritos": "Districts", "activa": "Active" }
+    },
+    "rutas": {
+      "title": "Routes",
+      "description": "Routes and stop points.",
+      "fields": { "nombre": "Name", "puntos_parada": "Stop points", "distancia_km": "Distance km", "tiempo_estimado_min": "Time min", "activa": "Active" }
+    },
+    "pedidos": {
+      "title": "Orders",
+      "description": "Loads requested by customers.",
+      "fields": { "codigo": "Code", "descripcion": "Description", "peso_kg": "Weight kg", "volumen_m3": "Volume m3", "direccion_entrega": "Delivery address", "fecha_solicitud": "Request date", "fecha_entrega_estimada": "Estimated delivery", "estado": "Status", "prioridad": "Priority", "observaciones": "Notes" }
+    },
+    "despachos": {
+      "title": "Dispatches",
+      "description": "Assignment of routes, vehicles and drivers.",
+      "fields": { "codigo": "Code", "fecha_salida": "Departure date", "fecha_llegada_estimada": "Estimated arrival", "fecha_llegada_real": "Actual arrival", "estado": "Status" }
+    },
+    "seguimiento_gps": {
+      "title": "GPS Tracking",
+      "description": "Location and speed of vehicles.",
+      "fields": { "coordenadas": "Coordinates", "velocidad_kmh": "Speed km/h", "timestamp": "Timestamp" }
+    },
+    "incidencias": {
+      "title": "Incidents",
+      "description": "Events reported during operation.",
+      "fields": { "tipo": "Type", "descripcion": "Description", "coordenadas": "Coordinates", "estado": "Status", "fecha_reporte": "Report date", "fecha_resolucion": "Resolution date" }
+    },
+    "mantenimientos": {
+      "title": "Maintenance",
+      "description": "Vehicle maintenance history.",
+      "fields": { "tipo": "Type", "descripcion": "Description", "costo_soles": "Cost (soles)", "taller": "Workshop", "fecha_entrada": "Check-in date", "fecha_salida": "Check-out date", "km_al_mantenimiento": "Mileage at service", "proximo_mantenimiento_km": "Next service (km)" }
+    },
+    "reportes": {
+      "title": "Reports",
+      "description": "Operational summaries.",
+      "fields": { "tipo": "Type", "fecha": "Date", "resumen": "Summary" }
+    },
+    "notificaciones": {
+      "title": "Notifications",
+      "description": "Alerts for users.",
+      "fields": { "tipo": "Type", "mensaje": "Message", "referencia_tipo": "Reference type", "leida": "Read" }
+    },
+    "publicaciones_feed": {
+      "title": "Feed",
+      "description": "Internal posts with multimedia.",
+      "fields": { "tipo_publicacion": "Type", "contenido": "Content", "multimedia": "Multimedia", "estado": "Status" }
+    },
+    "comentarios": {
+      "title": "Comments",
+      "description": "Corporate feed comments with reactions.",
+      "fields": { "texto": "Text" }
+    },
+    "suscripciones": {
+      "title": "Subscriptions",
+      "description": "Plus and Premium plans chosen by users.",
+      "fields": { "plan": "Plus/Premium plan", "estado": "Status", "fecha_inicio": "Start date", "fecha_fin": "End date", "caracteristicas": "Features" }
+    }
+  }
+}
