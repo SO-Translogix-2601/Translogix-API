@@ -36,6 +36,9 @@ h2 { margin-bottom: 4px; font-size: 18px; }
 .topbar p, .panelHeader span, .summaryPanel p, .moduleCard small, .profileCard p { color: #667085; }
 .topActions { display: flex; gap: 10px; align-items: center; }
 .statusPill { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid #d0d7de; border-radius: 8px; background: rgba(255, 255, 255, 0.86); white-space: nowrap; box-shadow: 0 8px 24px rgba(16, 35, 47, 0.06); }
+.languageSwitcher { display: flex; align-items: center; gap: 6px; padding: 10px 12px; border: 1px solid #d0d7de; border-radius: 8px; background: rgba(255, 255, 255, 0.86); box-shadow: 0 8px 24px rgba(16, 35, 47, 0.06); }
+.languageSwitcher select { border: none; background: transparent; font-weight: 700; font-size: 13px; color: inherit; cursor: pointer; }
+.languageSwitcher select:focus { outline: none; }
 
 .authPage { min-height: 100vh; display: grid; grid-template-columns: minmax(360px, 1fr) minmax(360px, 480px); background: #eef7f5; }
 .authIntro { padding: 54px; display: flex; flex-direction: column; justify-content: center; gap: 16px; background: linear-gradient(145deg, #10232f 0%, #155e63 100%); color: #ffffff; }
