@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Boxes,
   CheckCircle2,
@@ -72,14 +72,13 @@ const moduleGroups = [
 ];
 
 const reactionOptions = [
-  { emoji: "👍", label: "Me gusta" },
-  { emoji: "❤️", label: "Importante" },
-  { emoji: "😂", label: "Ligero" },
-  { emoji: "😮", label: "Atencion" },
-  { emoji: "🚚", label: "En ruta" },
-  { emoji: "✅", label: "Resuelto" },
+  { emoji: "\u{1F44D}", label: "Me gusta" },
+  { emoji: "\u2764\uFE0F", label: "Importante" },
+  { emoji: "\u{1F602}", label: "Ligero" },
+  { emoji: "\u{1F62E}", label: "Atencion" },
+  { emoji: "\u{1F69A}", label: "En ruta" },
+  { emoji: "\u2705", label: "Resuelto" },
 ];
-
 const formatValue = (value) => {
   if (value === null || value === undefined || value === "") return "-";
   if (typeof value === "boolean") return value ? "Si" : "No";
@@ -88,15 +87,35 @@ const formatValue = (value) => {
   return String(value);
 };
 
-function addReaction(reactions = [], emoji) {
+function addReaction(reactions = [], emoji, userId) {
+  const currentUserId = String(userId || "");
   const current = Array.isArray(reactions) ? reactions : [];
-  const exists = current.find((reaction) => reaction.emoji === emoji);
+  const alreadyReactedHere = current.some((reaction) => reaction.emoji === emoji && (reaction.usuarios || []).map(String).includes(currentUserId));
+  if (alreadyReactedHere) return current;
+
+  const withoutPreviousUserReaction = current
+    .map((reaction) => {
+      const usuarios = (reaction.usuarios || []).map(String);
+      if (!usuarios.includes(currentUserId)) return reaction;
+      return {
+        ...reaction,
+        usuarios: usuarios.filter((id) => id !== currentUserId),
+        cantidad: Math.max(0, Number(reaction.cantidad || 0) - 1),
+      };
+    })
+    .filter((reaction) => Number(reaction.cantidad || 0) > 0);
+
+  const exists = withoutPreviousUserReaction.find((reaction) => reaction.emoji === emoji);
   if (exists) {
-    return current.map((reaction) => reaction.emoji === emoji ? { ...reaction, cantidad: Number(reaction.cantidad || 0) + 1 } : reaction);
+    return withoutPreviousUserReaction.map((reaction) => reaction.emoji === emoji ? { ...reaction, usuarios: [...(reaction.usuarios || []).map(String), currentUserId], cantidad: Number(reaction.cantidad || 0) + 1 } : reaction);
   }
-  return [...current, { emoji, cantidad: 1 }];
+  return [...withoutPreviousUserReaction, { emoji, cantidad: 1, usuarios: [currentUserId] }];
 }
 
+function userReaction(reactions = [], userId) {
+  const currentUserId = String(userId || "");
+  return (Array.isArray(reactions) ? reactions : []).find((reaction) => (reaction.usuarios || []).map(String).includes(currentUserId))?.emoji;
+}
 function renderReactionSummary(reactions = []) {
   const current = Array.isArray(reactions) ? reactions : [];
   if (!current.length) return "Sin reacciones";
@@ -341,10 +360,12 @@ function FeedView({ user }) {
   const [posts, setPosts] = useState([]);
   const [commentsByPost, setCommentsByPost] = useState({});
   const [postDraft, setPostDraft] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
   const [commentDrafts, setCommentDrafts] = useState({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
+  const fileInputRef = useRef(null);
   const userId = user.id || user._id;
 
   async function loadFeed() {
@@ -375,7 +396,7 @@ function FeedView({ user }) {
   async function createPost(event) {
     event.preventDefault();
     const content = postDraft.trim();
-    if (!content) return;
+    if (!content && !selectedImage) return;
     setSaving(true);
     setMessage(null);
     try {
@@ -385,18 +406,46 @@ function FeedView({ user }) {
           autor_id: userId,
           tipo_publicacion: "comunicado",
           contenido: content,
-          multimedia: [],
+          multimedia: selectedImage ? [selectedImage] : [],
           reacciones: [],
           estado: "publicado",
         }),
       });
       setPostDraft("");
+      setSelectedImage(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       await loadFeed();
     } catch (error) {
       setMessage({ type: "error", text: error.message });
     } finally {
       setSaving(false);
     }
+  }
+
+  function selectImage(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setMessage({ type: "error", text: "Solo puedes subir imagenes." });
+      event.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setSelectedImage({
+        tipo: "imagen",
+        nombre: file.name,
+        url: reader.result,
+        size_mb: Number((file.size / 1024 / 1024).toFixed(2)),
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removeSelectedImage() {
+    setSelectedImage(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   async function createComment(postId) {
@@ -424,7 +473,7 @@ function FeedView({ user }) {
   }
 
   async function reactToPost(post, emoji) {
-    const reacciones = addReaction(post.reacciones, emoji);
+    const reacciones = addReaction(post.reacciones, emoji, userId);
     setPosts((current) => current.map((item) => item._id === post._id ? { ...item, reacciones } : item));
     try {
       await apiRequest(`/publicaciones_feed/${post._id}`, { method: "PATCH", body: JSON.stringify({ reacciones }) });
@@ -435,7 +484,7 @@ function FeedView({ user }) {
   }
 
   async function reactToComment(postId, comment, emoji) {
-    const reacciones = addReaction(comment.reacciones, emoji);
+    const reacciones = addReaction(comment.reacciones, emoji, userId);
     setCommentsByPost((current) => ({
       ...current,
       [postId]: (current[postId] || []).map((item) => item._id === comment._id ? { ...item, reacciones } : item),
@@ -452,6 +501,27 @@ function FeedView({ user }) {
     return String(authorId) === String(userId) ? user.nombre : `Usuario ${String(authorId || "").slice(-6)}`;
   }
 
+  function isMine(authorId) {
+    return String(authorId) === String(userId);
+  }
+
+  async function deleteComment(postId, comment) {
+    if (!isMine(comment.autor_id)) return;
+    if (!window.confirm("Eliminar tu comentario?")) return;
+    setSaving(true);
+    try {
+      await apiRequest(`/comentarios/${comment._id}`, { method: "DELETE" });
+      setCommentsByPost((current) => ({
+        ...current,
+        [postId]: (current[postId] || []).filter((item) => item._id !== comment._id),
+      }));
+    } catch (error) {
+      setMessage({ type: "error", text: error.message });
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <section className="feedPage">
       <form className="composer" onSubmit={createPost}>
@@ -460,9 +530,20 @@ function FeedView({ user }) {
           <span>Publicar en el feed operativo</span>
           <textarea value={postDraft} onChange={(event) => setPostDraft(event.target.value)} placeholder="Comparte una novedad, incidencia, evidencia o comunicado..." rows={3} />
         </label>
+        {selectedImage && (
+          <div className="imagePreview">
+            <img alt={selectedImage.nombre || "Imagen seleccionada"} src={selectedImage.url} />
+            <div>
+              <strong>{selectedImage.nombre}</strong>
+              <span>{selectedImage.size_mb} MB</span>
+            </div>
+            <button className="iconButton" onClick={removeSelectedImage} type="button" title="Quitar imagen"><X size={16} /></button>
+          </div>
+        )}
         <div className="composerActions">
-          <button className="secondaryButton" type="button"><Image size={18} />Multimedia</button>
-          <button className="primaryButton" disabled={saving || !postDraft.trim()} type="submit">{saving ? <Loader2 className="spin" size={18} /> : <Send size={18} />}Publicar</button>
+          <input accept="image/*" className="fileInput" onChange={selectImage} ref={fileInputRef} type="file" />
+          <button className="secondaryButton" onClick={() => fileInputRef.current?.click()} type="button"><Image size={18} />Imagen</button>
+          <button className="primaryButton" disabled={saving || (!postDraft.trim() && !selectedImage)} type="submit">{saving ? <Loader2 className="spin" size={18} /> : <Send size={18} />}Publicar</button>
         </div>
       </form>
 
@@ -481,11 +562,11 @@ function FeedView({ user }) {
             </header>
             <p className="postContent">{post.contenido}</p>
             {Array.isArray(post.multimedia) && post.multimedia.length > 0 && (
-              <div className="mediaList">{post.multimedia.map((media, index) => <span key={`${media.url}-${index}`}><Image size={16} />{media.tipo}: {media.url}</span>)}</div>
+              <div className="mediaGrid">{post.multimedia.map((media, index) => media.tipo === "imagen" ? <img alt={media.nombre || "Imagen del feed"} key={`${media.url}-${index}`} src={media.url} /> : <span key={`${media.url}-${index}`}><Image size={16} />{media.tipo}: {media.url}</span>)}</div>
             )}
             <div className="reactionSummary">{renderReactionSummary(post.reacciones)}</div>
             <div className="reactionBar" aria-label="Reacciones de publicacion">
-              {reactionOptions.map((reaction) => <button key={reaction.emoji} onClick={() => reactToPost(post, reaction.emoji)} title={reaction.label} type="button">{reaction.emoji}</button>)}
+              {reactionOptions.map((reaction) => <button className={userReaction(post.reacciones, userId) === reaction.emoji ? "active" : ""} key={reaction.emoji} onClick={() => reactToPost(post, reaction.emoji)} title={reaction.label} type="button">{reaction.emoji}</button>)}
             </div>
 
             <section className="commentsBlock">
@@ -493,11 +574,11 @@ function FeedView({ user }) {
                 <div className="commentItem" key={comment._id}>
                   <div className="avatar mini">{authorLabel(comment.autor_id).slice(0, 1)}</div>
                   <div className="commentBubble">
-                    <strong>{authorLabel(comment.autor_id)}</strong>
+                    <div className="commentHeader"><strong>{authorLabel(comment.autor_id)}</strong>{isMine(comment.autor_id) && <button onClick={() => deleteComment(post._id, comment)} type="button">Eliminar</button>}</div>
                     <p>{comment.texto}</p>
                     <div className="commentMeta"><span>{formatDate(comment.createdAt)}</span><span>{renderReactionSummary(comment.reacciones)}</span></div>
                     <div className="miniReactionBar" aria-label="Reacciones de comentario">
-                      {reactionOptions.slice(0, 4).map((reaction) => <button key={reaction.emoji} onClick={() => reactToComment(post._id, comment, reaction.emoji)} title={reaction.label} type="button">{reaction.emoji}</button>)}
+                      {reactionOptions.slice(0, 4).map((reaction) => <button className={userReaction(comment.reacciones, userId) === reaction.emoji ? "active" : ""} key={reaction.emoji} onClick={() => reactToComment(post._id, comment, reaction.emoji)} title={reaction.label} type="button">{reaction.emoji}</button>)}
                     </div>
                   </div>
                 </div>

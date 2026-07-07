@@ -1,4 +1,6 @@
-﻿services:
+name: translogix-api-main
+
+services:
   mongodb:
     build:
       context: .
@@ -34,7 +36,7 @@
     environment:
       PORT: 3000
       MONGODB_URI: mongodb://admin:translogix2026@mongodb:27017/translogix_db?authSource=admin
-      JWT_SECRET: translogix_demo_secret_2026
+      JWT_SECRET: translogix_dev_secret_2026
       JWT_EXPIRES_IN: 8h
     ports:
       - "3000:3000"

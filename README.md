@@ -556,19 +556,28 @@ El modulo de comunicacion interna funciona como un muro social operativo. La pan
 |---|---|---|
 | Publicaciones | `/api/publicaciones_feed` | Crear comunicados, incidencias, evidencias o novedades operativas |
 | Comentarios | `/api/comentarios` | Responder dentro de una publicacion |
-| Reacciones de post | `PATCH /api/publicaciones_feed/:id` | Incrementar el contador del emoji seleccionado |
-| Reacciones de comentario | `PATCH /api/comentarios/:id` | Incrementar el contador del emoji seleccionado |
+| Imagen local | `/api/publicaciones_feed` | Adjuntar una imagen elegida desde la PC y previsualizarla antes de publicar |
+| Reacciones de post | `PATCH /api/publicaciones_feed/:id` | Guardar una sola reaccion por usuario |
+| Reacciones de comentario | `PATCH /api/comentarios/:id` | Guardar una sola reaccion por usuario |
+| Borrar comentario propio | `DELETE /api/comentarios/:id` | Eliminar solo comentarios creados por el usuario autenticado desde la interfaz |
 
 Cada publicacion y cada comentario guardan reacciones con esta forma:
 
 ```json
 [
-  { "emoji": "👍", "cantidad": 3 },
-  { "emoji": "✅", "cantidad": 2 }
+  { "emoji": "👍", "cantidad": 3, "usuarios": ["..."] },
+  { "emoji": "✅", "cantidad": 2, "usuarios": ["..."] }
 ]
 ```
 
 Esto permite que la comunicacion del TMS no sea solo CRUD administrativo, sino una experiencia mas cercana a un feed interno de operaciones.
+
+Credencial estable de desarrollo:
+
+```text
+Email: carlosmen@gmail.com
+Password: Translogix2026!
+```
 
 Para validar la capa de presentacion:
 

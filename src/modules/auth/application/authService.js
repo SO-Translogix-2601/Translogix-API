@@ -64,7 +64,7 @@ async function createSession(user) {
   const session = await buildUserSession(user);
   const token = jwt.sign(
     { sub: String(user._id), email: user.email, rol: session.rol },
-    process.env.JWT_SECRET || "translogix_demo_secret_2026",
+    process.env.JWT_SECRET || "translogix_dev_secret_2026",
     { expiresIn: process.env.JWT_EXPIRES_IN || "8h" }
   );
 
@@ -72,5 +72,5 @@ async function createSession(user) {
 }
 
 export function verifyToken(token) {
-  return jwt.verify(token, process.env.JWT_SECRET || "translogix_demo_secret_2026");
+  return jwt.verify(token, process.env.JWT_SECRET || "translogix_dev_secret_2026");
 }

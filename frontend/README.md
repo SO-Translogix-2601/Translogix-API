@@ -74,9 +74,11 @@ El modulo `publicaciones_feed` ya no se muestra solo como tabla. En la capa de p
 | Accion | Que hace |
 |---|---|
 | Publicar | Crea un documento en `/api/publicaciones_feed` con autor, contenido, estado y reacciones |
+| Subir imagen | Permite elegir una imagen local del equipo, previsualizarla y guardarla en la publicacion |
 | Comentar | Crea un documento en `/api/comentarios` asociado a la publicacion |
-| Reaccionar a post | Actualiza el arreglo `reacciones` de la publicacion con `PATCH` |
-| Reaccionar a comentario | Actualiza el arreglo `reacciones` del comentario con `PATCH` |
+| Reaccionar a post | Actualiza el arreglo `reacciones` de la publicacion con `PATCH`; cada usuario mantiene una sola reaccion |
+| Reaccionar a comentario | Actualiza el arreglo `reacciones` del comentario con `PATCH`; cada usuario mantiene una sola reaccion |
+| Borrar comentario propio | Permite eliminar solo comentarios creados por el usuario autenticado |
 | Ver historial | Carga publicaciones y luego consulta comentarios por `publicacion_id` |
 
 Estructura logica:
@@ -84,15 +86,15 @@ Estructura logica:
 ```text
 Publicacion
   -> contenido
-  -> multimedia
-  -> reacciones: [{ emoji, cantidad }]
+  -> multimedia: [{ tipo, nombre, url, size_mb }]
+  -> reacciones: [{ emoji, cantidad, usuarios }]
   -> comentarios
 
 Comentario
   -> publicacion_id
   -> autor_id
   -> texto
-  -> reacciones: [{ emoji, cantidad }]
+  -> reacciones: [{ emoji, cantidad, usuarios }]
 ```
 
 Los emojis disponibles en la interfaz son:

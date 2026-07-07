@@ -25,7 +25,7 @@ const multimediaSchema = new Schema(
 );
 
 const reaccionSchema = new Schema(
-  { emoji: String, cantidad: Number },
+  { emoji: String, cantidad: Number, usuarios: [String] },
   { _id: false, versionKey: false }
 );
 

@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { Role, Suscripcion, Usuario } from "../infrastructure/mongoose/models.js";
 
-export const DEMO_PASSWORD = "Translogix2026!";
+export const DEVELOPMENT_PASSWORD = "Translogix2026!";
 
 const plans = {
   plus: ["CRUD logistico", "Dashboard operativo", "Notificaciones internas"],
@@ -9,18 +9,25 @@ const plans = {
 };
 
 export async function bootstrapDemoData() {
-  const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
+  const passwordHash = await bcrypt.hash(DEVELOPMENT_PASSWORD, 10);
   const users = await Usuario.find();
 
   for (const user of users) {
     const currentHash = String(user.password_hash || "");
     const isSeedPlaceholder = currentHash.includes("hash1") || currentHash.includes("hash2") || currentHash.includes("hash3");
-    const acceptsDemoPassword = currentHash.startsWith("$2") && await bcrypt.compare(DEMO_PASSWORD, currentHash).catch(() => false);
+    const acceptsDevelopmentPassword = currentHash.startsWith("$2") && await bcrypt.compare(DEVELOPMENT_PASSWORD, currentHash).catch(() => false);
 
-    if (isSeedPlaceholder || !acceptsDemoPassword) {
+    if (isSeedPlaceholder || !acceptsDevelopmentPassword) {
       user.password_hash = passwordHash;
       await user.save();
     }
+  }
+
+  const legacyAdmin = await Usuario.findOne({ email: "cmendoza@translogix.pe" });
+  const primaryAdmin = await Usuario.findOne({ email: "carlosmen@gmail.com" });
+  if (legacyAdmin && !primaryAdmin) {
+    legacyAdmin.email = "carlosmen@gmail.com";
+    await legacyAdmin.save();
   }
 
   const admin = await Usuario.findOne({ email: "cmendoza@translogix.pe" }) || await Usuario.findOne({ email: "carlosmen@gmail.com" }) || users[0];
