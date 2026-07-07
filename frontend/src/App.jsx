@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Boxes, Database, Gauge, LogOut, Truck, UserRound } from "lucide-react";
 import { apiRequest, clearSession, getStoredUser } from "./api.js";
 import { modules } from "./modules.js";
@@ -12,8 +13,10 @@ import { DashboardView } from "./components/DashboardView.jsx";
 import { ProfileView } from "./components/ProfileView.jsx";
 import { FeedView } from "./components/FeedView.jsx";
 import { ResourceView } from "./components/ResourceView.jsx";
+import { LanguageSwitcher } from "./components/LanguageSwitcher.jsx";
 
 export default function App() {
+  const { t } = useTranslation();
   const [user, setUser] = useState(getStoredUser());
   const availableModules = useMemo(() => {
     const plan = user?.suscripcion?.plan;
@@ -110,10 +113,10 @@ export default function App() {
       const payload = normalizePayload(activeModule, form);
       if (selected?._id) {
         await apiRequest(`/${activeModule.key}/${selected._id}`, { method: "PATCH", body: JSON.stringify(payload) });
-        setMessage({ type: "success", text: "Registro actualizado correctamente." });
+        setMessage({ type: "success", text: t("common.recordUpdated") });
       } else {
         await apiRequest(`/${activeModule.key}`, { method: "POST", body: JSON.stringify(payload) });
-        setMessage({ type: "success", text: "Registro creado correctamente." });
+        setMessage({ type: "success", text: t("common.recordCreated") });
       }
       closeModal();
       setSelected(null);
@@ -142,7 +145,7 @@ export default function App() {
     setLoading(true);
     try {
       await apiRequest(`/${activeModule.key}/${deleteTarget._id}`, { method: "DELETE" });
-      setMessage({ type: "success", text: "Registro eliminado." });
+      setMessage({ type: "success", text: t("common.recordDeleted") });
       if (selected?._id === deleteTarget._id) {
         setSelected(null);
         setForm(toForm(activeModule));
@@ -159,25 +162,25 @@ export default function App() {
   const groupedModules = moduleGroups
     .map((group) => ({ ...group, modules: availableModules.filter((module) => group.keys.includes(module.key)) }))
     .filter((group) => group.modules.length > 0);
-  const pageTitle = isDashboard ? "Dashboard" : isProfile ? "Perfil" : isFeed ? "Feed corporativo" : activeModule?.title;
-  const pageDescription = isDashboard ? "Resumen del acceso activo, plan, rol y modulos disponibles." : isProfile ? "Datos de usuario IAM y administracion de suscripcion." : isFeed ? "Publicaciones, comentarios y reacciones internas del equipo logistico." : activeModule?.description;
+  const pageTitle = isDashboard ? t("nav.dashboard") : isProfile ? t("nav.profile") : isFeed ? t("feed.title") : t(`modules.${activeModule?.key}.title`, activeModule?.title);
+  const pageDescription = isDashboard ? t("dashboard.pageDescription") : isProfile ? t("profile.pageDescription") : isFeed ? t("feed.pageDescription") : t(`modules.${activeModule?.key}.description`, activeModule?.description);
 
   return (
     <div className="shell">
       <aside className="sidebar">
-        <div className="brand"><div className="brandMark"><Truck size={22} /></div><div><strong>Translogix</strong><span>{user.rol} | {planDefinitions[user.suscripcion.plan]?.title}</span></div></div>
-        <nav className="moduleNav" aria-label="Modulos">
-          <button className={isDashboard ? "active" : ""} onClick={() => setActiveKey("dashboard")} type="button"><Gauge size={18} /><span>Dashboard</span></button>
-          <button className={isProfile ? "active" : ""} onClick={() => setActiveKey("perfil")} type="button"><UserRound size={18} /><span>Perfil</span></button>
+        <div className="brand"><div className="brandMark"><Truck size={22} /></div><div><strong>{t("auth.brand")}</strong><span>{t(`roles.${user.rol}.title`, user.rol)} | {t(`plans.${user.suscripcion.plan}.title`, planDefinitions[user.suscripcion.plan]?.title)}</span></div></div>
+        <nav className="moduleNav" aria-label={t("nav.modulesAriaLabel")}>
+          <button className={isDashboard ? "active" : ""} onClick={() => setActiveKey("dashboard")} type="button"><Gauge size={18} /><span>{t("nav.dashboard")}</span></button>
+          <button className={isProfile ? "active" : ""} onClick={() => setActiveKey("perfil")} type="button"><UserRound size={18} /><span>{t("nav.profile")}</span></button>
           {groupedModules.map((group) => {
             const Icon = group.icon;
-            return <div className="navGroup" key={group.title}><div className="navGroupTitle"><Icon size={14} />{group.title}</div>{group.modules.map((module) => <button className={module.key === activeKey ? "active" : ""} key={module.key} onClick={() => setActiveKey(module.key)} type="button"><Boxes size={18} /><span>{module.title}</span></button>)}</div>;
+            return <div className="navGroup" key={group.title}><div className="navGroupTitle"><Icon size={14} />{t(`moduleGroups.${group.key}`, group.title)}</div>{group.modules.map((module) => <button className={module.key === activeKey ? "active" : ""} key={module.key} onClick={() => setActiveKey(module.key)} type="button"><Boxes size={18} /><span>{t(`modules.${module.key}.title`, module.title)}</span></button>)}</div>;
           })}
         </nav>
       </aside>
 
       <main className="content">
-        <section className="topbar"><div><p className="eyebrow">{user.nombre}</p><h1>{pageTitle}</h1><p>{pageDescription}</p></div><div className="topActions"><div className="statusPill"><Database size={18} /><span>API localhost:3000</span></div><button className="secondaryButton" onClick={logout} type="button"><LogOut size={18} />Salir</button></div></section>
+        <section className="topbar"><div><p className="eyebrow">{user.nombre}</p><h1>{pageTitle}</h1><p>{pageDescription}</p></div><div className="topActions"><LanguageSwitcher /><div className="statusPill"><Database size={18} /><span>{t("common.apiOnline")}</span></div><button className="secondaryButton" onClick={logout} type="button"><LogOut size={18} />{t("common.logout")}</button></div></section>
 
         {isDashboard && <DashboardView user={user} availableModules={availableModules} onOpenModule={setActiveKey} />}
         {isProfile && <ProfileView user={user} onUserChange={setUser} />}

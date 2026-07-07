@@ -1,4 +1,6 @@
-﻿export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+﻿import i18n from "./i18n/index.js";
+
+export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 export function getToken() {
   return localStorage.getItem("translogix_token");
@@ -35,7 +37,7 @@ export async function apiRequest(path, options = {}) {
   const payload = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error(payload?.message || "No se pudo completar la solicitud");
+    throw new Error(payload?.message || i18n.t("common.genericError"));
   }
 
   return payload;
