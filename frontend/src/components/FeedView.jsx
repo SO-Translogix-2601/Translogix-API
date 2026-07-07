@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { CheckCircle2, Image, Loader2, Send, SmilePlus, X } from "lucide-react";
 import { apiRequest } from "../api.js";
 import { reactionOptions } from "../config/reactions.js";
@@ -6,6 +7,7 @@ import { addReaction, renderReactionSummary, userReaction } from "../utils/react
 import { formatDate } from "../utils/format.js";
 
 export function FeedView({ user }) {
+  const { t } = useTranslation();
   const [posts, setPosts] = useState([]);
   const [commentsByPost, setCommentsByPost] = useState({});
   const [postDraft, setPostDraft] = useState("");
@@ -75,7 +77,7 @@ export function FeedView({ user }) {
     const file = event.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      setMessage({ type: "error", text: "Solo puedes subir imagenes." });
+      setMessage({ type: "error", text: t("feed.imageUploadError") });
       event.target.value = "";
       return;
     }
@@ -147,7 +149,7 @@ export function FeedView({ user }) {
   }
 
   function authorLabel(authorId) {
-    return String(authorId) === String(userId) ? user.nombre : "Equipo Translogix";
+    return String(authorId) === String(userId) ? user.nombre : t("feed.team");
   }
 
   function isMine(authorId) {
@@ -156,7 +158,7 @@ export function FeedView({ user }) {
 
   async function deleteComment(postId, comment) {
     if (!isMine(comment.autor_id)) return;
-    if (!window.confirm("Eliminar tu comentario?")) return;
+    if (!window.confirm(t("feed.confirmDeleteComment"))) return;
     setSaving(true);
     try {
       await apiRequest(`/comentarios/${comment._id}`, { method: "DELETE" });
@@ -176,28 +178,28 @@ export function FeedView({ user }) {
       <form className="composer" onSubmit={createPost}>
         <div className="avatar">{user.nombre?.slice(0, 1) || "T"}</div>
         <label className="composerBox">
-          <span>Publicar en el feed operativo</span>
-          <textarea value={postDraft} onChange={(event) => setPostDraft(event.target.value)} placeholder="Comparte una novedad, incidencia, evidencia o comunicado..." rows={3} />
+          <span>{t("feed.composerLabel")}</span>
+          <textarea value={postDraft} onChange={(event) => setPostDraft(event.target.value)} placeholder={t("feed.composerPlaceholder")} rows={3} />
         </label>
         {selectedImage && (
           <div className="imagePreview">
-            <img alt={selectedImage.nombre || "Imagen seleccionada"} src={selectedImage.url} />
+            <img alt={selectedImage.nombre || t("feed.image")} src={selectedImage.url} />
             <div>
               <strong>{selectedImage.nombre}</strong>
               <span>{selectedImage.size_mb} MB</span>
             </div>
-            <button className="iconButton" onClick={removeSelectedImage} type="button" title="Quitar imagen"><X size={16} /></button>
+            <button className="iconButton" onClick={removeSelectedImage} type="button" title={t("feed.removeImage")}><X size={16} /></button>
           </div>
         )}
         <div className="composerActions">
           <input accept="image/*" className="fileInput" onChange={selectImage} ref={fileInputRef} type="file" />
-          <button className="secondaryButton" onClick={() => fileInputRef.current?.click()} type="button"><Image size={18} />Imagen</button>
-          <button className="primaryButton" disabled={saving || (!postDraft.trim() && !selectedImage)} type="submit">{saving ? <Loader2 className="spin" size={18} /> : <Send size={18} />}Publicar</button>
+          <button className="secondaryButton" onClick={() => fileInputRef.current?.click()} type="button"><Image size={18} />{t("feed.image")}</button>
+          <button className="primaryButton" disabled={saving || (!postDraft.trim() && !selectedImage)} type="submit">{saving ? <Loader2 className="spin" size={18} /> : <Send size={18} />}{t("feed.publish")}</button>
         </div>
       </form>
 
       {message && <div className={`notice ${message.type}`}>{message.type === "success" ? <CheckCircle2 size={18} /> : <X size={18} />}<span>{message.text}</span></div>}
-      {loading && <div className="feedLoading"><Loader2 className="spin" size={18} />Cargando feed...</div>}
+      {loading && <div className="feedLoading"><Loader2 className="spin" size={18} />{t("feed.loading")}</div>}
 
       <div className="feedList">
         {posts.map((post) => (
@@ -206,16 +208,16 @@ export function FeedView({ user }) {
               <div className="avatar small">{authorLabel(post.autor_id).slice(0, 1)}</div>
               <div>
                 <strong>{authorLabel(post.autor_id)}</strong>
-                <span>{post.tipo_publicacion || "publicacion"} | {formatDate(post.createdAt)}</span>
+                <span>{post.tipo_publicacion || t("feed.post")} | {formatDate(post.createdAt)}</span>
               </div>
             </header>
             <p className="postContent">{post.contenido}</p>
             {Array.isArray(post.multimedia) && post.multimedia.length > 0 && (
-              <div className="mediaGrid">{post.multimedia.map((media, index) => media.tipo === "imagen" ? <img alt={media.nombre || "Imagen del feed"} key={`${media.url}-${index}`} src={media.url} /> : <span key={`${media.url}-${index}`}><Image size={16} />{media.tipo}: {media.url}</span>)}</div>
+              <div className="mediaGrid">{post.multimedia.map((media, index) => media.tipo === "imagen" ? <img alt={media.nombre || t("feed.image")} key={`${media.url}-${index}`} src={media.url} /> : <span key={`${media.url}-${index}`}><Image size={16} />{media.tipo}: {media.url}</span>)}</div>
             )}
-            <div className="reactionSummary">{renderReactionSummary(post.reacciones)}</div>
-            <div className="reactionBar" aria-label="Reacciones de publicacion">
-              {reactionOptions.map((reaction) => <button className={userReaction(post.reacciones, userId) === reaction.emoji ? "active" : ""} key={reaction.emoji} onClick={() => reactToPost(post, reaction.emoji)} title={reaction.label} type="button">{reaction.emoji}</button>)}
+            <div className="reactionSummary">{renderReactionSummary(post.reacciones, t("feed.noReactions"))}</div>
+            <div className="reactionBar" aria-label={t("feed.postReactionsLabel")}>
+              {reactionOptions.map((reaction) => <button className={userReaction(post.reacciones, userId) === reaction.emoji ? "active" : ""} key={reaction.emoji} onClick={() => reactToPost(post, reaction.emoji)} title={t(`feed.reactions.${reaction.key}`)} type="button">{reaction.emoji}</button>)}
             </div>
 
             <section className="commentsBlock">
@@ -223,24 +225,24 @@ export function FeedView({ user }) {
                 <div className="commentItem" key={comment._id}>
                   <div className="avatar mini">{authorLabel(comment.autor_id).slice(0, 1)}</div>
                   <div className="commentBubble">
-                    <div className="commentHeader"><strong>{authorLabel(comment.autor_id)}</strong>{isMine(comment.autor_id) && <button onClick={() => deleteComment(post._id, comment)} type="button">Eliminar</button>}</div>
+                    <div className="commentHeader"><strong>{authorLabel(comment.autor_id)}</strong>{isMine(comment.autor_id) && <button onClick={() => deleteComment(post._id, comment)} type="button">{t("feed.deleteComment")}</button>}</div>
                     <p>{comment.texto}</p>
-                    <div className="commentMeta"><span>{formatDate(comment.createdAt)}</span><span>{renderReactionSummary(comment.reacciones)}</span></div>
-                    <div className="miniReactionBar" aria-label="Reacciones de comentario">
-                      {reactionOptions.slice(0, 4).map((reaction) => <button className={userReaction(comment.reacciones, userId) === reaction.emoji ? "active" : ""} key={reaction.emoji} onClick={() => reactToComment(post._id, comment, reaction.emoji)} title={reaction.label} type="button">{reaction.emoji}</button>)}
+                    <div className="commentMeta"><span>{formatDate(comment.createdAt)}</span><span>{renderReactionSummary(comment.reacciones, t("feed.noReactions"))}</span></div>
+                    <div className="miniReactionBar" aria-label={t("feed.commentReactionsLabel")}>
+                      {reactionOptions.slice(0, 4).map((reaction) => <button className={userReaction(comment.reacciones, userId) === reaction.emoji ? "active" : ""} key={reaction.emoji} onClick={() => reactToComment(post._id, comment, reaction.emoji)} title={t(`feed.reactions.${reaction.key}`)} type="button">{reaction.emoji}</button>)}
                     </div>
                   </div>
                 </div>
               ))}
               <div className="commentComposer">
                 <div className="avatar mini">{user.nombre?.slice(0, 1) || "T"}</div>
-                <input value={commentDrafts[post._id] || ""} onChange={(event) => setCommentDrafts((current) => ({ ...current, [post._id]: event.target.value }))} onKeyDown={(event) => { if (event.key === "Enter") createComment(post._id); }} placeholder="Escribe un comentario..." />
-                <button className="iconButton" onClick={() => createComment(post._id)} disabled={saving || !(commentDrafts[post._id] || "").trim()} type="button" title="Comentar"><Send size={16} /></button>
+                <input value={commentDrafts[post._id] || ""} onChange={(event) => setCommentDrafts((current) => ({ ...current, [post._id]: event.target.value }))} onKeyDown={(event) => { if (event.key === "Enter") createComment(post._id); }} placeholder={t("feed.commentPlaceholder")} />
+                <button className="iconButton" onClick={() => createComment(post._id)} disabled={saving || !(commentDrafts[post._id] || "").trim()} type="button" title={t("feed.commentAction")}><Send size={16} /></button>
               </div>
             </section>
           </article>
         ))}
-        {!loading && posts.length === 0 && <div className="emptyFeed"><SmilePlus size={22} />Todavia no hay publicaciones.</div>}
+        {!loading && posts.length === 0 && <div className="emptyFeed"><SmilePlus size={22} />{t("feed.empty")}</div>}
       </div>
     </section>
   );
