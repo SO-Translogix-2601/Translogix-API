@@ -28,8 +28,8 @@ export function userReaction(reactions = [], userId) {
   return (Array.isArray(reactions) ? reactions : []).find((reaction) => (reaction.usuarios || []).map(String).includes(currentUserId))?.emoji;
 }
 
-export function renderReactionSummary(reactions = []) {
+export function renderReactionSummary(reactions = [], emptyLabel = "Sin reacciones") {
   const current = Array.isArray(reactions) ? reactions : [];
-  if (!current.length) return "Sin reacciones";
+  if (!current.length) return emptyLabel;
   return current.map((reaction) => `${reaction.emoji} ${reaction.cantidad || 0}`).join("  ");
 }
