@@ -13,7 +13,7 @@
     "visible": "{{count}} visible",
     "noRecords": "No records to show.",
     "actions": "Actions",
-    "apiOnline": "API localhost:3000",
+    "apiOnline": "AZURE API ONLINE",
     "confirmation": "Confirmation",
     "deleteRecordTitle": "Delete record",
     "deleteRecordBody": "This action will delete <0>{{target}}</0>. Confirm only if you are sure.",
@@ -105,6 +105,7 @@
     "team": "Translogix Team",
     "post": "post",
     "imageUploadError": "You can only upload images.",
+    "imageTooLargeError": "The image is too large even after compression. Try a simpler image or a lower resolution.",
     "reactions": {
       "like": "Like",
       "important": "Important",

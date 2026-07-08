@@ -13,7 +13,7 @@
     "visible": "{{count}} visibles",
     "noRecords": "No hay registros para mostrar.",
     "actions": "Acciones",
-    "apiOnline": "API localhost:3000",
+    "apiOnline": "Azure API ONLINE",
     "confirmation": "Confirmacion",
     "deleteRecordTitle": "Eliminar registro",
     "deleteRecordBody": "Esta accion eliminara <0>{{target}}</0>. Confirma solo si estas seguro.",
@@ -105,6 +105,7 @@
     "team": "Equipo Translogix",
     "post": "publicacion",
     "imageUploadError": "Solo puedes subir imagenes.",
+    "imageTooLargeError": "La imagen es demasiado pesada incluso comprimida. Prueba con una mas simple o de menor resolucion.",
     "reactions": {
       "like": "Me gusta",
       "important": "Importante",
