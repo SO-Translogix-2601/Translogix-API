@@ -6,6 +6,46 @@ import { reactionOptions } from "../config/reactions.js";
 import { addReaction, renderReactionSummary, userReaction } from "../utils/reactions.js";
 import { formatDate } from "../utils/format.js";
 
+const MAX_IMAGE_DIMENSION = 1600;
+const MAX_IMAGE_DATA_URL_BYTES = 1.4 * 1024 * 1024;
+
+function loadImageElement(file) {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(img);
+    };
+    img.onerror = (event) => {
+      URL.revokeObjectURL(objectUrl);
+      reject(event);
+    };
+    img.src = objectUrl;
+  });
+}
+
+async function compressImageFile(file) {
+  const img = await loadImageElement(file);
+  const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(img.width, img.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(img.width * scale);
+  canvas.height = Math.round(img.height * scale);
+
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  let quality = 0.75;
+  let dataUrl = canvas.toDataURL("image/jpeg", quality);
+  while (dataUrl.length > MAX_IMAGE_DATA_URL_BYTES && quality > 0.3) {
+    quality -= 0.15;
+    dataUrl = canvas.toDataURL("image/jpeg", quality);
+  }
+  return dataUrl;
+}
+
 export function FeedView({ user }) {
   const { t } = useTranslation();
   const [posts, setPosts] = useState([]);
@@ -73,7 +113,7 @@ export function FeedView({ user }) {
     }
   }
 
-  function selectImage(event) {
+  async function selectImage(event) {
     const file = event.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
@@ -82,16 +122,23 @@ export function FeedView({ user }) {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
+    try {
+      const dataUrl = await compressImageFile(file);
+      if (dataUrl.length > MAX_IMAGE_DATA_URL_BYTES) {
+        setMessage({ type: "error", text: t("feed.imageTooLargeError") });
+        event.target.value = "";
+        return;
+      }
       setSelectedImage({
         tipo: "imagen",
         nombre: file.name,
-        url: reader.result,
-        size_mb: Number((file.size / 1024 / 1024).toFixed(2)),
+        url: dataUrl,
+        size_mb: Number((dataUrl.length / 1024 / 1024).toFixed(2)),
       });
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      setMessage({ type: "error", text: t("feed.imageUploadError") });
+      event.target.value = "";
+    }
   }
 
   function removeSelectedImage() {
